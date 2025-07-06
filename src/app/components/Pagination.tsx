@@ -20,7 +20,6 @@ export default function Pagination({
     if (onPageChange) {
       onPageChange(page);
     }
-    // Optionally, you can add router.push here if you manage routing internally
   };
 
   return (
