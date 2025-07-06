@@ -13,7 +13,6 @@ import {
   FaUserShield,
 } from "react-icons/fa";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
-// Removed: import { useMediaQuery } from "react-responsive";
 
 export default function Home() {
   const coreFeatures = [
@@ -186,18 +185,6 @@ export default function Home() {
 
   const goToSlide = (slideIndex: number) => {
     setCurrentIndex(slideIndex);
-  };
-
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
-    );
   };
 
   const currentTestimonial = testimonials[currentIndex];

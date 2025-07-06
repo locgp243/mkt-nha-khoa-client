@@ -1,7 +1,5 @@
-// src/app/hoi-dap/page.tsx
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -12,7 +10,6 @@ import {
   FaUsersCog,
   FaUserShield,
 } from "react-icons/fa";
-// No longer importing useMediaQuery, IoChevronDown, IoChevronUp as they are removed
 
 export default function BangGiaPage() {
   const pricingPlans = [

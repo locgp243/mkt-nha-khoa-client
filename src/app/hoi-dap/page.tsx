@@ -3,10 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-// Removed: import { useMediaQuery } from "react-responsive";
-// No longer importing IoChevronDown, IoChevronUp as they are removed
 
-// Dữ liệu cho các câu hỏi và trả lời FAQ
 const faqItems = [
   {
     question:

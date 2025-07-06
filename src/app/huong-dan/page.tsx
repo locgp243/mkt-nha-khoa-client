@@ -2,7 +2,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-// Removed: import { useMediaQuery } from "react-responsive";
 
 export default function HuongDanPage() {
   const featureCards = [

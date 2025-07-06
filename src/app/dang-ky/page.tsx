@@ -1,8 +1,7 @@
-// src/app/hoi-dap/page.tsx
 "use client";
 import Link from "next/link";
 import PhoneNumberForm from "../components/PhoneNumberForm";
-// No longer importing IoChevronDown, IoChevronUp as they are removed
+
 export default function DangKyPage() {
   return (
     <main className="bg-white">
