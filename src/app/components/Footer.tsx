@@ -232,11 +232,11 @@ export default function Footer() {
           href="https://zalo.me/your-zalo-number"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-[50px] h-[50px] bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110"
+          className="w-[50px] h-[50px]  bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110"
         >
           <Image
-            src="/logo/logo.svg"
-            alt="Đã thông báo Bộ Công Thương"
+            src="/logo/download.png"
+            alt="123"
             width={50}
             height={50}
             className="object-contain"
