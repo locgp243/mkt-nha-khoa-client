@@ -4,17 +4,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  FaBullhorn,
-  FaGlobeAsia,
-  FaHandHoldingUsd,
-  FaShieldAlt,
-  FaUsersCog,
-  FaUserShield,
-} from "react-icons/fa";
-import Pagination from "../components/Pagination";
-// No longer importing IoChevronDown, IoChevronUp as they are removed
 
+import Pagination from "../components/Pagination";
 export default function BlogPage() {
   const blogPosts = [
     {
