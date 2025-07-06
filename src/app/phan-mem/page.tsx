@@ -181,7 +181,7 @@ export default function PhanMemPage() {
 
               {/* Video Link */}
               <div className="mt-8 hover:text-blue-800 transition-colors cursor-pointer">
-                <p className="font-semibold text-sm">
+                <p className="font-semibold text-sm text-black">
                   Xem Video:{" "}
                   <span className=" text-[#1DBCE7]">
                     Thực hiện các công việc cơ bản tại phòng khám nha khoa trong
@@ -400,7 +400,7 @@ export default function PhanMemPage() {
 
               {/* Video Link */}
               <div className="mt-8 transition-colors cursor-pointer">
-                <p className="font-medium text-sm">
+                <p className="font-medium text-sm text-black">
                   Xem thêm{" "}
                   <span className=" text-[#1DBCE7]">
                     Vì sao nên chọn phần mềm nha khoa online?
