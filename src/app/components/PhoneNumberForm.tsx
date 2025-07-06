@@ -16,112 +16,102 @@ declare global {
         }
       ) => number; // render trả về widget ID
       reset: (widgetId?: number) => void;
-      // Hàm execute thường dùng cho reCAPTCHA v3, nhưng cũng có thể dùng cho v2 ẩn
-      // execute: (siteKey?: string, options?: { action: string }) => Promise<string>;
     };
     onRecaptchaLoad: () => void;
   }
 }
 
-// Không cần định nghĩa interface rỗng nếu component không nhận props nào
-// interface PhoneNumberFormProps {}
+interface PhoneNumberFormProps {
+  className?: string; // Thêm prop tạm thời để tránh lỗi interface rỗng
+}
 
-function PhoneNumberFormComponent() {
+function PhoneNumberFormComponent({ className = "" }: PhoneNumberFormProps) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoadingCaptcha, setIsLoadingCaptcha] = useState(true); // Thêm trạng thái tải captcha
+  const [isClient, setIsClient] = useState(false);
   const captchaRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
 
-  // Xử lý việc tải và render reCAPTCHA
+  // Kiểm tra client-side để tránh hydration error
   useEffect(() => {
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    setIsClient(true);
+  }, []);
 
+  // Load reCAPTCHA v2 script
+  useEffect(() => {
+    // Chỉ chạy trên client-side
+    if (!isClient) return;
+
+    // Kiểm tra biến môi trường
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     if (!siteKey) {
-      console.error(
-        "Lỗi: NEXT_PUBLIC_RECAPTCHA_SITE_KEY không được thiết lập."
-      );
-      setIsLoadingCaptcha(false); // Dừng trạng thái tải nếu thiếu key
+      console.error("NEXT_PUBLIC_RECAPTCHA_SITE_KEY không được thiết lập");
       return;
     }
 
-    const loadRecaptchaScript = () => {
-      // Chỉ tải script nếu nó chưa được tải
-      if (!document.getElementById("recaptcha-script")) {
-        const script = document.createElement("script");
-        script.id = "recaptcha-script";
-        script.src = `https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaLoad`;
-        script.async = true;
-        script.defer = true;
-
-        script.onerror = () => {
-          console.error(
-            "Không thể tải reCAPTCHA script. Vui lòng kiểm tra kết nối mạng hoặc nguồn script."
-          );
-          setIsLoadingCaptcha(false);
-        };
-
-        document.body.appendChild(script);
-      } else {
-        // Nếu script đã có, đảm bảo hàm onRecaptchaLoad được gọi nếu cần
-        if (
-          window.grecaptcha &&
-          captchaRef.current &&
-          widgetIdRef.current === null
-        ) {
-          renderCaptcha();
-        } else {
-          setIsLoadingCaptcha(false); // Nếu đã có script và captcha đã render thì không cần tải nữa
-        }
-      }
-    };
-
     const renderCaptcha = () => {
-      // Đảm bảo ref và grecaptcha đã sẵn sàng
-      if (
-        captchaRef.current &&
-        window.grecaptcha &&
-        widgetIdRef.current === null
-      ) {
+      if (captchaRef.current && window.grecaptcha && !captchaLoaded) {
         try {
+          // Kiểm tra xem element đã có reCAPTCHA chưa
+          if (captchaRef.current.children.length > 0) {
+            return;
+          }
+
           const widgetId = window.grecaptcha.render(captchaRef.current, {
             sitekey: siteKey,
             callback: (token: string) => {
               setCaptchaToken(token);
-              console.log("reCAPTCHA đã xác minh thành công.");
+              console.log("reCAPTCHA verified successfully");
             },
             "expired-callback": () => {
               setCaptchaToken(null);
-              console.log("reCAPTCHA đã hết hạn.");
+              console.log("reCAPTCHA expired");
             },
           });
+
           widgetIdRef.current = widgetId;
-          setIsLoadingCaptcha(false); // Tắt trạng thái tải khi reCAPTCHA đã render
+          setCaptchaLoaded(true);
         } catch (error) {
           console.error("Lỗi khi render reCAPTCHA:", error);
-          setIsLoadingCaptcha(false); // Tắt trạng thái tải khi có lỗi
         }
       }
     };
 
-    // Gán hàm callback toàn cục cho reCAPTCHA khi script được tải
-    window.onRecaptchaLoad = renderCaptcha;
+    // Chỉ tải script nếu nó chưa được tải
+    if (!document.getElementById("recaptcha-script")) {
+      const script = document.createElement("script");
+      script.id = "recaptcha-script";
+      script.src = `https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaLoad`;
+      script.async = true;
+      script.defer = true;
 
-    loadRecaptchaScript();
+      // Xử lý lỗi khi load script
+      script.onerror = () => {
+        console.error("Không thể tải reCAPTCHA script");
+      };
 
-    // Cleanup: Reset reCAPTCHA khi component unmount
+      document.body.appendChild(script);
+
+      // Gán hàm callback toàn cục cho reCAPTCHA
+      window.onRecaptchaLoad = renderCaptcha;
+    } else {
+      // Nếu script đã được tải, render ngay
+      renderCaptcha();
+    }
+
+    // Cleanup function
     return () => {
       if (window.grecaptcha && widgetIdRef.current !== null) {
         try {
           window.grecaptcha.reset(widgetIdRef.current);
-          widgetIdRef.current = null; // Đặt lại widgetId
         } catch (error) {
           console.error("Lỗi khi reset reCAPTCHA:", error);
         }
       }
     };
-  }, []); // [] đảm bảo useEffect chỉ chạy một lần khi component mount
+  }, [isClient, captchaLoaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,11 +127,9 @@ function PhoneNumberFormComponent() {
     }
 
     // Validate phone number format (basic)
-    const phoneRegex = /^(0|\+84)[3-9]\d{8}$/; // Regex hợp lệ hơn cho số điện thoại Việt Nam
+    const phoneRegex = /^[0-9]{9,10}$/;
     if (!phoneRegex.test(phoneNumber)) {
-      alert(
-        "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam gồm 10 chữ số (VD: 0912345678 hoặc +84912345678)."
-      );
+      alert("Số điện thoại không hợp lệ. Vui lòng nhập 9-10 chữ số.");
       return;
     }
 
@@ -156,8 +144,7 @@ function PhoneNumberFormComponent() {
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        // Kiểm tra response.ok để đảm bảo HTTP status code là thành công
+      if (data.success) {
         alert("Xác minh thành công! Tin nhắn đã được gửi.");
         // Reset form
         setPhoneNumber("");
@@ -166,18 +153,14 @@ function PhoneNumberFormComponent() {
           window.grecaptcha.reset(widgetIdRef.current);
         }
       } else {
-        // Sử dụng data.message từ server nếu có, hoặc thông báo lỗi mặc định
-        alert(
-          "Xác minh thất bại: " +
-            (data.message || "Đã có lỗi xảy ra trên server.")
-        );
+        alert("Xác minh thất bại: " + data.message);
         if (window.grecaptcha && widgetIdRef.current !== null) {
           window.grecaptcha.reset(widgetIdRef.current);
         }
       }
     } catch (error) {
       console.error("Lỗi khi gửi yêu cầu:", error);
-      alert("Có lỗi xảy ra trong quá trình gửi yêu cầu, vui lòng thử lại.");
+      alert("Có lỗi xảy ra, vui lòng thử lại.");
       if (window.grecaptcha && widgetIdRef.current !== null) {
         window.grecaptcha.reset(widgetIdRef.current);
       }
@@ -186,8 +169,26 @@ function PhoneNumberFormComponent() {
     }
   };
 
+  // Render loading state cho server-side
+  if (!isClient) {
+    return (
+      <section className={`flex justify-center items-center ${className}`}>
+        <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+          <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
+            Nhập số điện thoại của bạn
+          </h2>
+          <div className="animate-pulse">
+            <div className="h-12 bg-gray-200 rounded mb-6"></div>
+            <div className="h-20 bg-gray-200 rounded mb-6"></div>
+            <div className="h-12 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="flex justify-center items-center min-h-screen">
+    <section className={`flex justify-center items-center ${className}`}>
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
         <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
           Nhập số điện thoại của bạn
@@ -195,9 +196,9 @@ function PhoneNumberFormComponent() {
         <form onSubmit={handleSubmit}>
           {/* Phần nhập số điện thoại */}
           <div className="flex items-center border border-gray-300 rounded-md mb-6">
-            <div className="flex items-center px-3 py-2 border-r border-gray-300 rounded-l-md bg-gray-50">
-              <span className="text-gray-700 font-medium">+84</span>
-              {/* Icon mũi tên */}
+            {/* Chọn mã vùng quốc gia */}
+            <div className="flex items-center px-3 py-2 border-r border-gray-300 rounded-l-md">
+              <span className="text-gray-700">+84</span>
               <svg
                 className="w-4 h-4 text-gray-500 ml-1"
                 fill="none"
@@ -213,10 +214,11 @@ function PhoneNumberFormComponent() {
                 ></path>
               </svg>
             </div>
+            {/* Input số điện thoại */}
             <input
               type="tel"
               className="flex-grow p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-r-md"
-              placeholder="Nhập số điện thoại (VD: 912345678)"
+              placeholder="Nhập số điện thoại"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               required
@@ -225,11 +227,9 @@ function PhoneNumberFormComponent() {
           </div>
 
           {/* reCAPTCHA v2 Checkbox */}
-          <div className="flex justify-center mb-6 min-h-[78px]">
-            {" "}
-            {/* Đặt min-h để tránh layout shift */}
-            {isLoadingCaptcha ? (
-              <div className="flex items-center justify-center text-gray-500 text-sm">
+          <div className="flex justify-center mb-6">
+            {!captchaLoaded && (
+              <div className="flex items-center justify-center text-gray-500 text-sm min-h-[78px]">
                 <svg
                   className="animate-spin -ml-1 mr-2 h-5 w-5 text-blue-500"
                   xmlns="http://www.w3.org/2000/svg"
@@ -252,13 +252,13 @@ function PhoneNumberFormComponent() {
                 </svg>
                 Đang tải reCAPTCHA...
               </div>
-            ) : (
-              <div ref={captchaRef} className="g-recaptcha"></div>
             )}
+            {/* ĐÂY LÀ NỚI HIỂN THỊ CHECKBOX reCAPTCHA */}
+            <div ref={captchaRef} className="g-recaptcha"></div>
           </div>
 
           {/* Hiển thị trạng thái xác minh */}
-          {captchaToken && !isLoadingCaptcha && (
+          {captchaToken && (
             <div className="flex items-center justify-center mb-4 text-green-600 text-sm">
               <svg
                 className="w-5 h-5 mr-2"
@@ -281,7 +281,7 @@ function PhoneNumberFormComponent() {
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!captchaToken || isLoadingCaptcha || isSubmitting}
+            disabled={!captchaToken || !captchaLoaded || isSubmitting}
           >
             {isSubmitting ? (
               <div className="flex items-center justify-center">
@@ -324,13 +324,12 @@ function PhoneNumberFormComponent() {
 }
 
 // Export component với dynamic import để tránh hydration error
-// Thêm prop `ssr: false` để đảm bảo component chỉ được render trên client
 const PhoneNumberForm = dynamic(
   () => Promise.resolve(PhoneNumberFormComponent),
   {
     ssr: false,
     loading: () => (
-      <section className="flex justify-center items-center min-h-screen">
+      <section className="flex justify-center items-center">
         <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
           <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
             Nhập số điện thoại của bạn

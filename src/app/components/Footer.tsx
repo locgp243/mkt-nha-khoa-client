@@ -14,7 +14,7 @@ export default function Footer() {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/trang-chu"
+                    href="/"
                     className="text-gray-200 hover:text-white transition-colors"
                   >
                     Trang chủ
@@ -125,8 +125,8 @@ export default function Footer() {
                 <span className="font-semibold">Sale:</span> 0908.030.910 (Mr.Ý)
               </p>
               <p className="text-gray-200">
-                <span className="font-semibold">Kỹ thuật:</span> 0984.358.352
-                (Mr. Xuân)
+                <span className="font-semibold">Kỹ thuật:</span> 0828.212.825
+                (Mr. Dung)
               </p>
             </div>
 
