@@ -45,7 +45,8 @@ function PhoneNumberFormComponent({ className = "" }: PhoneNumberFormProps) {
     if (!isClient) return;
 
     // Kiểm tra biến môi trường
-    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    // const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    const siteKey = "6Ldu3HgrAAAAAAe7nDCpTGJVvhHVGfi9D0eBXDdy";
     if (!siteKey) {
       console.error("NEXT_PUBLIC_RECAPTCHA_SITE_KEY không được thiết lập");
       return;
