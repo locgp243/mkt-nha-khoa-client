@@ -23,11 +23,8 @@ export default function LienHePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic xử lý khi form được gửi
     console.log("Form submitted:", formData);
-    // Bạn có thể gửi dữ liệu này đến API backend của mình
     alert("Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại sớm nhất.");
-    // Reset form sau khi gửi
     setFormData({
       fullName: "",
       phoneNumber: "",
@@ -87,13 +84,8 @@ export default function LienHePage() {
       </section>
 
       <section className="p-4 bg-white w-[90%] lg:w-[80%] mx-auto ">
-        <div
-          className="pt-4 pb-4"
-          // Removed conditional class based on !isLaptop
-        >
-          {/* Content Grid: Benefits (left) and Image (right) */}
+        <div className="pt-4 pb-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left Column: Benefits List */}
             <div>
               <h1 className="text-3xl font-semibold leading-12">
                 Giải pháp quản lý nha khoa online | Maydental
@@ -146,7 +138,6 @@ export default function LienHePage() {
               </span>
             </div>
 
-            {/* Right Column: Image Mockup */}
             <div className="flex items-start">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31334.49890779533!2d106.64098262786862!3d10.977531217133592!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d13a88ef03b5%3A0xa8fe7df8f754fb63!2zQ2jDuWEgVMOieSBU4bqhbmc!5e0!3m2!1svi!2s!4v1751855577991!5m2!1svi!2s"
@@ -161,7 +152,6 @@ export default function LienHePage() {
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start  mb-12">
-          {/* Left Column: Contact Form */}
           <div className="bg-white">
             <form onSubmit={handleSubmit}>
               <div className="mb-6">

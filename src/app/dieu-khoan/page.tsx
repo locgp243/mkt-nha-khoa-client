@@ -1,15 +1,13 @@
-// src/app/dieu-khoan/page.tsx
-"use client"; // Đảm bảo component này là Client Component nếu có các tương tác (ví dụ: Link)
+"use client";
 
 import Link from "next/link"; // Import Link component
 
 interface TermItem {
   title: string;
-  content: string | string[]; // Nội dung có thể là string hoặc mảng string cho nhiều đoạn
+  content: string | string[];
 }
 
 export default function DieuKhoanSuDungPage() {
-  // Dữ liệu các điều khoản được định nghĩa trực tiếp trong component
   const termsAndConditions: TermItem[] = [
     {
       title: "Quy định sử dụng",
@@ -50,7 +48,6 @@ export default function DieuKhoanSuDungPage() {
 
   return (
     <main className="bg-white">
-      {/* Phần Banner/Header của trang Điều khoản */}
       <section
         className="
           relative h-[calc(100vh-100px)] md:h-[calc(50vh - 100px)] lg:h-[423px]
@@ -76,7 +73,6 @@ export default function DieuKhoanSuDungPage() {
               z-10
               text-center lg:text-right
             "
-            // style={{ float: "left" }} // Vẫn nên xem xét thay thế float bằng flexbox/grid
           >
             <h1
               className="
@@ -100,10 +96,7 @@ export default function DieuKhoanSuDungPage() {
         </div>
       </section>
 
-      {/* Phần nội dung chính các điều khoản */}
       <section className=" w-[90%] md:w-[90%] lg:w-[80%] bg-white mx-auto py-16">
-        {" "}
-        {/* Thêm py-16 để có padding trên dưới */}
         <div className="container mx-auto px-4">
           {/* Phần giới thiệu chung */}
           <div className="mb-12 text-gray-700 leading-relaxed">
@@ -155,8 +148,6 @@ export default function DieuKhoanSuDungPage() {
           <ul className="list-none list-inside space-y-8 text-gray-700">
             {termsAndConditions.map((term, index) => (
               <li key={index} className="pl-2">
-                {" "}
-                {/* pl-2 để căn chỉnh số với nội dung */}
                 <h3 className="font-bold text-xl text-gray-800 mb-2">
                   Điều {index + 1}: {term.title}
                 </h3>
