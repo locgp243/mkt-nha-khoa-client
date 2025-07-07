@@ -59,8 +59,8 @@ export default function LienHePage() {
               lg:w-[42%] lg:mx-0
               z-10
               text-center lg:text-right
+              float-left
             "
-            style={{ float: "left" }}
           >
             <h1
               className="
@@ -76,7 +76,7 @@ export default function LienHePage() {
                 hidden md:block
               "
             >
-              Khi cần tư vần về phần mềm và các giải pháp quản lý nha khoa, hãy
+              Khi cần tư vấn về phần mềm và các giải pháp quản lý nha khoa, hãy
               liên hệ với chúng tôi ngay khi có thể
             </p>
           </div>
@@ -91,8 +91,8 @@ export default function LienHePage() {
                 Giải pháp quản lý nha khoa online | Maydental
               </h1>
               <span>
-                Với phương châm "sinh ra là để phụng sự" cho cộng đồng Bác sĩ,
-                Nha sĩ có được một{" "}
+                Với phương châm {'"sinh ra là để phụng sự"'} cho cộng đồng Bác
+                sĩ, Nha sĩ có được một{" "}
                 <span className="text-[#018DCC] italic  ">
                   phần mềm quản lý phòng khám nha khoa Online
                 </span>{" "}
@@ -224,7 +224,7 @@ export default function LienHePage() {
                   value={formData.note}
                   onChange={handleChange}
                   rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y" // resize-y cho phép thay đổi chiều cao
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y"
                   placeholder="Ghi chú của bạn"
                   required
                 ></textarea>
@@ -243,7 +243,7 @@ export default function LienHePage() {
             <div className="flex items-start mb-4">
               <Image
                 src="/logo/icons/call.png"
-                alt="Phone"
+                alt="Phone icon"
                 width={30}
                 height={30}
                 className="mr-5 pt-0 mt-1 flex-shrink-0"
@@ -260,7 +260,7 @@ export default function LienHePage() {
             <div className="flex items-start mb-4">
               <Image
                 src="/logo/icons/email.png"
-                alt="Email"
+                alt="Email icon"
                 width={30}
                 height={30}
                 className="mr-5 pt-0 mt-1 flex-shrink-0"
@@ -277,7 +277,7 @@ export default function LienHePage() {
             <div className="flex items-start mb-6">
               <Image
                 src="/logo/icons/place.png"
-                alt="Address"
+                alt="Location icon"
                 width={30}
                 height={30}
                 className="mr-5 pt-0 mt-1 flex-shrink-0"

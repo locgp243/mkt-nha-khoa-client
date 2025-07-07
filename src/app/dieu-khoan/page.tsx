@@ -90,7 +90,7 @@ export default function DieuKhoanSuDungPage() {
             >
               Là các quy định liên quan đến việc sử dụng dịch vụ phần mềm quản
               lý nha khoa online Maydental. Người dùng khi đăng ký, và sau khi
-              đi đăng ký đều phải tuân thủ những quy định này.
+              đăng ký đều phải tuân thủ những quy định này.
             </p>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function DieuKhoanSuDungPage() {
               </Link>{" "}
               để tham khảo hoặc sử dụng dịch vụ, bạn đã đồng ý tuân thủ và ràng
               buộc với những quy định của CÔNG TY TNHH PHẦN MỀM TRÊN MÂY (Sau
-              đây gọi tắt là "MAYSOFT").
+              đây gọi tắt là {'"MAYSOFT"'}).
             </p>
             <p className="mb-4">
               Vui lòng xem kỹ các quy định và hợp tác với MAYSOFT nhằm xây dựng
@@ -145,12 +145,12 @@ export default function DieuKhoanSuDungPage() {
           </div>
 
           {/* Danh sách các Điều khoản */}
-          <ul className="list-none list-inside space-y-8 text-gray-700">
+          <div className="space-y-8 text-gray-700">
             {termsAndConditions.map((term, index) => (
-              <li key={index} className="pl-2">
-                <h3 className="font-bold text-xl text-gray-800 mb-2">
+              <article key={index} className="pl-2">
+                <h2 className="font-bold text-xl text-gray-800 mb-2">
                   Điều {index + 1}: {term.title}
-                </h3>
+                </h2>
                 {typeof term.content === "string" ? (
                   <p className="text-base leading-relaxed">{term.content}</p>
                 ) : (
@@ -164,9 +164,9 @@ export default function DieuKhoanSuDungPage() {
                     </p>
                   ))
                 )}
-              </li>
+              </article>
             ))}
-          </ul>
+          </div>
         </div>
       </section>
     </main>
