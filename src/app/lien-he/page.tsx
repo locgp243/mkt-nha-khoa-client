@@ -2,6 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
+// Import service và type cần thiết
+import { submitContactForm } from "@/lib/api/services/contact.service";
+import type { ContactPayload } from "@/types/contact";
+import { toast } from "sonner";
 
 export default function LienHePage() {
   const [formData, setFormData] = useState({
@@ -9,7 +13,11 @@ export default function LienHePage() {
     phoneNumber: "",
     email: "",
     note: "",
+    subject: "Thư liên hệ từ Website", // Thêm một chủ đề mặc định
   });
+
+  // State để quản lý trạng thái của form
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -21,16 +29,37 @@ export default function LienHePage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    alert("Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại sớm nhất.");
-    setFormData({
-      fullName: "",
-      phoneNumber: "",
-      email: "",
-      note: "",
-    });
+    setIsLoading(true);
+
+    // Ánh xạ dữ liệu từ state của form sang payload mà API yêu cầu
+    const payload: ContactPayload = {
+      full_name: formData.fullName,
+      email: formData.email,
+      phone: formData.phoneNumber,
+      message: formData.note,
+      subject: formData.subject,
+    };
+
+    try {
+      await submitContactForm(payload);
+      setFormData({
+        fullName: "",
+        phoneNumber: "",
+        email: "",
+        note: "",
+        subject: "Thư liên hệ từ Website",
+      });
+      toast.success(
+        "Cảm ơn bạn đã gửi thông tin! Chúng tôi sẽ liên hệ lại sớm"
+      );
+    } catch (error) {
+      console.error("Lỗi khi gửi form liên hệ:", error);
+      toast.error("Đã có lỗi xảy ra trong quá trình gửi. Vui lòng thử lại sau");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,36 +75,12 @@ export default function LienHePage() {
           before:bg-cover before:bg-no-repeat before:bg-center
         "
       >
-        <div
-          className="
-            w-[90%] md:w-[90%] lg:w-[80%]
-            mx-auto px-4 h-full flex lg:items-center
-          "
-        >
-          <div
-            className="
-              w-[90%] pt-8 mx-auto
-              md:w-[90%] md:pt-8 md:mx-auto
-              lg:w-[42%] lg:mx-0
-              z-10
-              text-center lg:text-right
-              float-left
-            "
-          >
-            <h1
-              className="
-                text-[36px] text-white font-bold
-                leading-[4.025rem] tracking-[.2px]
-              "
-            >
+        <div className="w-[90%] md:w-[90%] lg:w-[80%] mx-auto px-4 h-full flex lg:items-center">
+          <div className="w-[90%] pt-8 mx-auto md:w-[90%] md:pt-8 md:mx-auto lg:w-[42%] lg:mx-0 z-10 text-center lg:text-right float-left">
+            <h1 className="text-[36px] text-white font-bold leading-[4.025rem] tracking-[.2px]">
               Liên hệ
             </h1>
-            <p
-              className="
-                text-white text-[1.5rem] leading-[2rem] tracking-[.2px]
-                hidden md:block
-              "
-            >
+            <p className="text-white text-[1.5rem] leading-[2rem] tracking-[.2px] hidden md:block">
               Khi cần tư vấn về phần mềm và các giải pháp quản lý nha khoa, hãy
               liên hệ với chúng tôi ngay khi có thể
             </p>
@@ -93,7 +98,7 @@ export default function LienHePage() {
               <span>
                 Với phương châm {'"sinh ra là để phụng sự"'} cho cộng đồng Bác
                 sĩ, Nha sĩ có được một{" "}
-                <span className="text-[#018DCC] italic  ">
+                <span className="text-[#018DCC] italic">
                   phần mềm quản lý phòng khám nha khoa Online
                 </span>{" "}
                 <span className="italic">tốt nhất</span> và đơn giản hơn so với
@@ -140,7 +145,7 @@ export default function LienHePage() {
 
             <div className="flex items-start">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31334.49890779533!2d106.64098262786862!3d10.977531217133592!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d13a88ef03b5%3A0xa8fe7df8f754fb63!2zQ2jDuWEgVMOieSBU4bqhbmc!5e0!3m2!1svi!2s!4v1751855577991!5m2!1svi!2s"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.954490813955!2d106.6756434147485!3d10.738002892347694!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f62a90e5dbd%3A0x448d3aa4558d2c16!2zMTUgTmd1eeG7hW4gTMawxqFuZyBC4bqxbmcsIELDoG4gWHXDom4sIFF14bqtbiA3LCBUaMOgbmggcGjhu5EgSOG7kyBDaMOtIE1pbmgsIFZp4buHdG5hbQ!5e0!3m2!1svi!2s!4v1628757019973!5m2!1svi!2s"
                 width="600"
                 height="450"
                 style={{ border: 0 }}
@@ -151,7 +156,7 @@ export default function LienHePage() {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start  mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-12">
           <div className="bg-white">
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
@@ -170,6 +175,7 @@ export default function LienHePage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Họ và tên của bạn"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -189,6 +195,7 @@ export default function LienHePage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Số điện thoại của bạn"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -208,6 +215,7 @@ export default function LienHePage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Email của bạn"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -227,18 +235,20 @@ export default function LienHePage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y"
                   placeholder="Ghi chú của bạn"
                   required
+                  disabled={isLoading}
                 ></textarea>
               </div>
+
               <button
                 type="submit"
-                className="w-full bg-yellow-500 text-white py-2 rounded-xl font-bold text-sm hover:bg-yellow-600 transition-colors duration-200"
+                className="w-full bg-yellow-500 text-white py-3 rounded-xl font-bold text-base hover:bg-yellow-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled={isLoading}
               >
-                Gửi
+                {isLoading ? "Đang gửi..." : "Gửi thông tin"}
               </button>
             </form>
           </div>
 
-          {/* Right Column: Contact Info */}
           <div className="bg-white">
             <div className="flex items-start mb-4">
               <Image
@@ -291,7 +301,7 @@ export default function LienHePage() {
                   15 Nguyễn Lương Bằng, Phường Tân Phú, Quận 07, TP.HCM
                 </p>
                 <a
-                  href="https://www.google.com/maps/search/?api=1&query=15+Nguyen+Luong+Bang+Tan+Phu+District+7+HCMC"
+                  href="https://www.google.com/maps/place/15+Nguy%E1%BB%85n+L%C6%B0%C6%A1ng+B%E1%BA%B1ng,+Ph%C6%B0%E1%BB%9Dng+T%C3%A2n+Ph%C3%BA,+Qu%E1%BA%ADn+7,+Th%C3%A0nh+ph%E1%BB%91+H%E1%BB%93+Ch%C3%AD+Minh,+Vi%E1%BB%87t+Nam/@10.7380029,106.6756434,17z/data=!3m1!4b1!4m5!3m4!1s0x31752f62a90e5dbd:0x448d3aa4558d2c16!8m2!3d10.7380029!4d106.6778321"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center mt-4 justify-center w-full bg-[#028BFF] text-white py-2 rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors duration-200"

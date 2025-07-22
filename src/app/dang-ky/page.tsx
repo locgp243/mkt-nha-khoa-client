@@ -1,8 +1,59 @@
 "use client";
 import Link from "next/link";
-import PhoneNumberForm from "../components/PhoneNumberForm";
+import PhoneNumberForm from "@/app/components/PhoneNumberForm";
+import RegistrationForm from "@/app/components/RegistrationForm";
+import { useState } from "react";
+
+const RegistrationSuccessMessage = () => {
+  return (
+    <div className="text-center p-8 bg-white shadow-md rounded-lg">
+      <h2 className="text-3xl font-bold text-green-600 mb-4">
+        Đăng ký thành công!
+      </h2>
+      <p className="text-lg text-gray-700 mb-2">
+        Để sử dụng phần mềm, Bs vui lòng đăng nhập tại{" "}
+        <a
+          href="https://app.maydental.vn"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline font-semibold"
+        >
+          https://app.maydental.vn
+        </a>
+      </p>
+      <p className="text-lg text-gray-700 mb-2">
+        Tài liệu hướng dẫn sử dụng phần mềm xin tham khảo link sau{" "}
+        <a
+          href="LINK_DEN_TAI_LIEU_HUONG_DAN" // <--- Cần thay bằng link tài liệu thật
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline font-semibold"
+        >
+          Hướng dẫn sử dụng phần mềm maydental
+        </a>
+      </p>
+      <p className="text-lg text-gray-700 mb-4">
+        Hỗ trợ và tư vấn phần mềm:{" "}
+        <span className="font-semibold text-red-500">Mr. Ý: 0908.030.910</span>
+      </p>
+      <p className="text-gray-700 mt-6">Xin chân thành cảm ơn.</p>
+      <p className="font-semibold text-gray-800 mt-1">Maydental team!</p>
+    </div>
+  );
+};
 
 export default function DangKyPage() {
+  const [step, setStep] = useState<
+    "phone-verify" | "register-form" | "registration-success"
+  >("phone-verify");
+  const [verifiedPhone, setVerifiedPhone] = useState<string>("");
+  const handleVerificationSuccess = (phoneNumber: string) => {
+    setVerifiedPhone(phoneNumber);
+    setStep("register-form"); // Chuyển sang bước điền form
+  };
+  const handleRegistrationSuccess = () => {
+    setStep("registration-success"); // <--- Chuyển sang bước hiển thị thông báo thành công
+  };
   return (
     <main className="bg-white">
       <section
@@ -80,7 +131,21 @@ export default function DangKyPage() {
             Vì sao nên chọn phần mềm nha khoa online?
           </Link>
         </span>
-        <PhoneNumberForm />
+        {/* --- LOGIC HIỂN THỊ ĐỘNG --- */}
+        {step === "phone-verify" && (
+          <PhoneNumberForm onVerificationSuccess={handleVerificationSuccess} />
+        )}
+
+        {step === "register-form" && (
+          <RegistrationForm
+            phoneNumber={verifiedPhone}
+            onRegistrationSuccess={handleRegistrationSuccess}
+          />
+        )}
+
+        {step === "registration-success" && ( // <--- Thêm điều kiện render mới
+          <RegistrationSuccessMessage />
+        )}
       </section>
     </main>
   );

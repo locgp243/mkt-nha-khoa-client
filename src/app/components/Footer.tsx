@@ -126,7 +126,7 @@ export default function Footer() {
               </p>
               <p className="text-gray-200">
                 <span className="font-semibold">Kỹ thuật:</span> 0828.212.825
-                (Mr. Dung)
+                (Mr. Dũng)
               </p>
             </div>
 

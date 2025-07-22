@@ -3,18 +3,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 
-// Khai báo type cho grecaptcha v2
+// Khai báo type cho grecaptcha v2 (Giữ nguyên)
 declare global {
   interface Window {
     grecaptcha: {
       render: (
-        element: HTMLElement,
+        element: HTMLElement | string,
         options: {
           sitekey: string;
           callback: (token: string) => void;
           "expired-callback": () => void;
         }
-      ) => number; // render trả về widget ID
+      ) => number;
       reset: (widgetId?: number) => void;
     };
     onRecaptchaLoad: () => void;
@@ -22,326 +22,262 @@ declare global {
 }
 
 interface PhoneNumberFormProps {
-  className?: string; // Thêm prop tạm thời để tránh lỗi interface rỗng
+  className?: string;
+  onVerificationSuccess: (phoneNumber: string) => void; // <--- THÊM DÒNG NÀY VÀO
 }
 
-function PhoneNumberFormComponent({ className = "" }: PhoneNumberFormProps) {
+function PhoneNumberFormComponent({
+  className = "",
+  onVerificationSuccess,
+}: PhoneNumberFormProps) {
+  // --- STATE MANAGEMENT ---
+  // Thêm state để quản lý giao diện (UI) và dữ liệu OTP
+  const [uiState, setUiState] = useState<"phone-input" | "otp-input">(
+    "phone-input"
+  );
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State để hiển thị lỗi cho người dùng
+
+  // --- REFS & ROUTER ---
   const captchaRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<number | null>(null);
+  const [isClient, setIsClient] = useState(false); // Giữ nguyên
 
-  // Kiểm tra client-side để tránh hydration error
+  // --- EFFECTS ---
+  // Giữ nguyên useEffect để kiểm tra client và load reCAPTCHA, em đã làm rất tốt
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Load reCAPTCHA v2 script
   useEffect(() => {
-    // Chỉ chạy trên client-side
     if (!isClient) return;
-
-    // Kiểm tra biến môi trường
-    // const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-    const siteKey = "6Ldu3HgrAAAAAAe7nDCpTGJVvhHVGfi9D0eBXDdy";
-    if (!siteKey) {
-      console.error("NEXT_PUBLIC_RECAPTCHA_SITE_KEY không được thiết lập");
-      return;
-    }
-
+    const siteKey =
+      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ||
+      "6Ldu3HgrAAAAAAe7nDCpTGJVvhHVGfi9D0eBXDdy";
     const renderCaptcha = () => {
-      if (captchaRef.current && window.grecaptcha && !captchaLoaded) {
+      if (
+        captchaRef.current &&
+        window.grecaptcha &&
+        widgetIdRef.current === null
+      ) {
         try {
-          // Kiểm tra xem element đã có reCAPTCHA chưa
-          if (captchaRef.current.children.length > 0) {
-            return;
-          }
-
           const widgetId = window.grecaptcha.render(captchaRef.current, {
             sitekey: siteKey,
             callback: (token: string) => {
               setCaptchaToken(token);
-              console.log("reCAPTCHA verified successfully");
+              setError(null); // Xóa lỗi khi người dùng tick lại
             },
-            "expired-callback": () => {
-              setCaptchaToken(null);
-              console.log("reCAPTCHA expired");
-            },
+            "expired-callback": () => setCaptchaToken(null),
           });
-
           widgetIdRef.current = widgetId;
-          setCaptchaLoaded(true);
-        } catch (error) {
-          console.error("Lỗi khi render reCAPTCHA:", error);
+        } catch (e) {
+          console.error("Lỗi render reCAPTCHA:", e);
         }
       }
     };
-
-    // Chỉ tải script nếu nó chưa được tải
-    if (!document.getElementById("recaptcha-script")) {
+    if (!window.grecaptcha) {
       const script = document.createElement("script");
-      script.id = "recaptcha-script";
-      script.src = `https://www.google.com/recaptcha/api.js?render=explicit&onload=onRecaptchaLoad`;
+      script.src =
+        "https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit";
       script.async = true;
       script.defer = true;
-
-      // Xử lý lỗi khi load script
-      script.onerror = () => {
-        console.error("Không thể tải reCAPTCHA script");
-      };
-
       document.body.appendChild(script);
-
-      // Gán hàm callback toàn cục cho reCAPTCHA
       window.onRecaptchaLoad = renderCaptcha;
     } else {
-      // Nếu script đã được tải, render ngay
       renderCaptcha();
     }
+  }, [isClient]);
 
-    // Cleanup function
-    return () => {
-      if (window.grecaptcha && widgetIdRef.current !== null) {
-        try {
-          window.grecaptcha.reset(widgetIdRef.current);
-        } catch (error) {
-          console.error("Lỗi khi reset reCAPTCHA:", error);
-        }
-      }
-    };
-  }, [isClient, captchaLoaded]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  // --- HANDLERS ---
+  /**
+   * Xử lý gửi số điện thoại và yêu cầu mã OTP
+   */
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!phoneNumber) {
-      alert("Vui lòng nhập số điện thoại.");
-      return;
-    }
-
-    if (!captchaToken) {
-      alert("Vui lòng xác minh reCAPTCHA bằng cách tick vào checkbox.");
-      return;
-    }
-
-    // Validate phone number format (basic)
-    const phoneRegex = /^[0-9]{9,10}$/;
+    setError(null);
+    const phoneRegex = /^(0\d{9})$/; // Validate SĐT Việt Nam (10 số, bắt đầu bằng 0)
     if (!phoneRegex.test(phoneNumber)) {
-      alert("Số điện thoại không hợp lệ. Vui lòng nhập 9-10 chữ số.");
-      return;
+      return setError(
+        "Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số, bắt đầu bằng số 0."
+      );
+    }
+    if (!captchaToken) {
+      return setError("Vui lòng xác minh bạn không phải là robot.");
     }
 
     setIsSubmitting(true);
-
     try {
-      const response = await fetch("/api/verify-phone", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber, captchaToken }),
-      });
-
+      // Gọi API /api/send-otp
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/send-otp`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phoneNumber, captchaToken }),
+        }
+      );
       const data = await response.json();
 
-      if (data.success) {
-        alert("Xác minh thành công! Tin nhắn đã được gửi.");
-        // Reset form
-        setPhoneNumber("");
-        setCaptchaToken(null);
-        if (window.grecaptcha && widgetIdRef.current !== null) {
-          window.grecaptcha.reset(widgetIdRef.current);
-        }
+      if (response.ok && data.success) {
+        // Chuyển sang giao diện nhập OTP khi thành công
+        setUiState("otp-input");
       } else {
-        alert("Xác minh thất bại: " + data.message);
+        // Hiển thị lỗi từ backend và reset reCAPTCHA
+        setError(data.message || "Đã có lỗi xảy ra. Vui lòng thử lại.");
         if (window.grecaptcha && widgetIdRef.current !== null) {
           window.grecaptcha.reset(widgetIdRef.current);
+          setCaptchaToken(null);
         }
       }
-    } catch (error) {
-      console.error("Lỗi khi gửi yêu cầu:", error);
-      alert("Có lỗi xảy ra, vui lòng thử lại.");
-      if (window.grecaptcha && widgetIdRef.current !== null) {
-        window.grecaptcha.reset(widgetIdRef.current);
-      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      setError(
+        "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Render loading state cho server-side
+  /**
+   * Xử lý xác minh mã OTP
+   */
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!otp || otp.length !== 6) {
+      return setError("Mã OTP phải có 6 chữ số.");
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Gọi API /api/verify-otp
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/verify-otp`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phoneNumber, otp }),
+        }
+      );
+      const data = await response.json();
+      console.log("Check data xác nhận: ", data);
+      if (response.ok && data.success) {
+        // Chuyển hướng đến trang dashboard hoặc trang đăng ký thông tin
+        onVerificationSuccess(phoneNumber);
+      } else {
+        setError(data.message || "Xác thực OTP thất bại.");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      setError(
+        "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // --- RENDER LOGIC ---
   if (!isClient) {
+    // Giữ nguyên loading skeleton của em, rất tốt cho UX!
     return (
-      <section className={`flex justify-center items-center ${className}`}>
+      <div className="animate-pulse h-96 bg-gray-200 rounded-lg max-w-md mx-auto mt-8"></div>
+    );
+  }
+
+  // Giao diện nhập OTP
+  if (uiState === "otp-input") {
+    return (
+      <section className={`flex justify-center items-center mt-8 ${className}`}>
         <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
-          <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-            Nhập số điện thoại của bạn
+          <h2 className="text-2xl font-semibold text-center mb-2 text-gray-800">
+            Nhập mã OTP
           </h2>
-          <div className="animate-pulse">
-            <div className="h-12 bg-gray-200 rounded mb-6"></div>
-            <div className="h-20 bg-gray-200 rounded mb-6"></div>
-            <div className="h-12 bg-gray-200 rounded"></div>
-          </div>
+          <p className="text-center text-gray-500 mb-6">
+            Một mã xác thực đã được gửi đến số{" "}
+            <strong className="text-gray-700">{phoneNumber}</strong>.
+          </p>
+          <form onSubmit={handleOtpSubmit}>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="------"
+              maxLength={6}
+              className="w-full p-4 text-center text-3xl tracking-[0.5em] border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
+              disabled={isSubmitting}
+            />
+
+            {error && (
+              <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting || otp.length !== 6}
+              className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? "Đang xác minh..." : "XÁC MINH"}
+            </button>
+          </form>
         </div>
       </section>
     );
   }
 
+  // Giao diện nhập SĐT (Mặc định)
   return (
-    <section className={`flex justify-center items-center ${className}`}>
+    <section className={`flex justify-center items-center mt-8 ${className}`}>
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
         <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-          Nhập số điện thoại của bạn
+          Xác thực số điện thoại
         </h2>
-        <form onSubmit={handleSubmit}>
-          {/* Phần nhập số điện thoại */}
-          <div className="flex items-center border border-gray-300 rounded-md mb-6">
-            {/* Chọn mã vùng quốc gia */}
-            <div className="flex items-center px-3 py-2 border-r border-gray-300 rounded-l-md">
-              <span className="text-gray-700">+84</span>
-              <svg
-                className="w-4 h-4 text-gray-500 ml-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                ></path>
-              </svg>
-            </div>
-            {/* Input số điện thoại */}
+        <form onSubmit={handlePhoneSubmit}>
+          <div className="mb-4">
             <input
               type="tel"
-              className="flex-grow p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-r-md"
-              placeholder="Nhập số điện thoại"
+              className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Nhập số điện thoại của bạn (VD: 0912345678)"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
-              required
               disabled={isSubmitting}
             />
           </div>
 
-          {/* reCAPTCHA v2 Checkbox */}
-          <div className="flex justify-center mb-6">
-            {!captchaLoaded && (
-              <div className="flex items-center justify-center text-gray-500 text-sm min-h-[78px]">
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-5 w-5 text-blue-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Đang tải reCAPTCHA...
-              </div>
-            )}
-            {/* ĐÂY LÀ NỚI HIỂN THỊ CHECKBOX reCAPTCHA */}
-            <div ref={captchaRef} className="g-recaptcha"></div>
+          <div className="flex justify-center mb-4">
+            <div ref={captchaRef}></div>
           </div>
 
-          {/* Hiển thị trạng thái xác minh */}
-          {captchaToken && (
-            <div className="flex items-center justify-center mb-4 text-green-600 text-sm">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              ✅ reCAPTCHA đã được xác minh
-            </div>
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
           )}
 
-          {/* Nút Xác minh */}
           <button
             type="submit"
+            disabled={!captchaToken || isSubmitting}
             className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!captchaToken || !captchaLoaded || isSubmitting}
           >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center">
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                ĐANG XÁC MINH...
-              </div>
-            ) : (
-              "XÁC MINH"
-            )}
+            {isSubmitting ? "Đang gửi..." : "GỬI MÃ OTP"}
           </button>
         </form>
-
-        {/* Thông báo dưới nút */}
-        <p className="text-center text-gray-500 text-sm mt-4">
-          Bằng cách nhấn vào Xác minh, bạn có thể nhận được tin nhắn SMS. Có thể
-          áp dụng cước tin nhắn và dữ liệu.
-        </p>
       </div>
     </section>
   );
 }
 
-// Export component với dynamic import để tránh hydration error
+// Export component với dynamic import để tránh hydration error (giữ nguyên)
 const PhoneNumberForm = dynamic(
   () => Promise.resolve(PhoneNumberFormComponent),
   {
     ssr: false,
     loading: () => (
-      <section className="flex justify-center items-center">
-        <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
-          <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-            Nhập số điện thoại của bạn
-          </h2>
-          <div className="animate-pulse">
-            <div className="h-12 bg-gray-200 rounded mb-6"></div>
-            <div className="h-20 bg-gray-200 rounded mb-6"></div>
-            <div className="h-12 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </section>
+      <div className="animate-pulse h-96 bg-gray-200 rounded-lg max-w-md mx-auto mt-8"></div>
     ),
   }
 );
