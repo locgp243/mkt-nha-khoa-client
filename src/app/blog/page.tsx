@@ -3,21 +3,27 @@ import { PostCard } from "@/components/PostCard";
 import { PostService } from "@/lib/api/services/post.service";
 import { CustomPagination } from "@/components/CustomPagination";
 
-const POSTS_PER_PAGE = 6; // Thầy đổi lại thành 6 như code gốc của em
+const POSTS_PER_PAGE = 6;
 
-type Props = {
+// =================================================================
+// ## ĐỊNH NGHĨA TYPE CHO PROPS CỦA TRANG (THAY CHO type Props cũ)
+// =================================================================
+// Định nghĩa một kiểu dữ liệu chuẩn cho props của trang này
+// để dễ quản lý và tái sử dụng cho cả generateMetadata và BlogPage.
+type BlogPageProps = {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  params: {}; // Page này không có params động như /blog/[slug]
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
 // =================================================================
-// ## PHẦN METADATA (SEO) - Giữ nguyên, đã rất tốt
+// ## PHẦN METADATA (SEO)
 // =================================================================
+// Sử dụng BlogPageProps đã định nghĩa
 export async function generateMetadata({
   searchParams,
-}: Props): Promise<Metadata> {
+}: BlogPageProps): Promise<Metadata> {
   const currentPage = Number(searchParams?.page) || 1;
-
-  // Thay đổi nhỏ: Sử dụng một biến baseUrl để quản lý URL gốc dễ dàng hơn
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_URL || "https://tenmiencuaem.com";
   const canonicalUrl = `${baseUrl}/blog${
@@ -48,21 +54,14 @@ export async function generateMetadata({
 // =================================================================
 // ## PHẦN COMPONENT CHÍNH CỦA TRANG
 // =================================================================
-export default async function BlogPage({ searchParams }: Props) {
+// Sử dụng BlogPageProps đã định nghĩa
+export default async function BlogPage({ searchParams }: BlogPageProps) {
   const currentPage = Number(searchParams?.page) || 1;
 
   try {
-    // --- ĐIỂM QUAN TRỌNG NHẤT ---
-    // Lệnh gọi API này chạy trên Server trong lúc build.
-    // File PostService.ts của em PHẢI ĐẢM BẢO đọc được biến môi trường
-    // từ process.env.NEXT_PUBLIC_API_URL (hoặc tên biến em đặt)
-    // để có được URL public của backend.
     const { data: posts, pagination } = await PostService.getAll({
       page: currentPage,
       limit: POSTS_PER_PAGE,
-      // Thầy thêm cache: 'no-store' để đảm bảo dữ liệu luôn mới nhất,
-      // em có thể điều chỉnh lại revalidate sau nếu muốn.
-      // cache: 'no-store',
     });
 
     return (
@@ -88,7 +87,7 @@ export default async function BlogPage({ searchParams }: Props) {
 
         {/* ===== CONTENT SECTION ===== */}
         <section className="w-[90%] lg:w-[80%] py-14 mx-auto">
-          {/* Breadcrumbs có thể giữ nguyên hoặc tối ưu bằng JSON-LD như thầy đã gợi ý */}
+          {/* Breadcrumbs */}
           <div className="flex items-center breadcrumbs cursor-pointer">
             <div className="relative bg-[#C1F1FF] h-[34px] text-gray-700 text-sm breadcrumbsList pr-6 flex items-center hover:scale-[1.1] hover:z-10">
               <span>CRM - Phần mềm quản lý nha khoa</span>
@@ -107,9 +106,6 @@ export default async function BlogPage({ searchParams }: Props) {
                     <PostCard key={post.id} post={post} />
                   ))}
                 </div>
-
-                {/* --- ĐÂY LÀ LOGIC PAGINATION ĐÃ SỬA --- */}
-                {/* Chỉ hiển thị khi tổng số trang > 1 */}
                 {pagination && pagination.total_pages > 1 && (
                   <CustomPagination
                     totalPages={pagination.total_pages}
@@ -129,7 +125,6 @@ export default async function BlogPage({ searchParams }: Props) {
       </main>
     );
   } catch (err) {
-    // Log lỗi chi tiết trên server để dễ dàng debug trên Vercel
     console.error("Failed to fetch blog posts:", err);
     return (
       <div className="flex items-center justify-center py-20">
