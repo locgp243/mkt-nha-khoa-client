@@ -39,12 +39,11 @@ const getAllGuides = cache(async () => {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   try {
-    const { slug } = await params;
-
-    const guide = await getGuideData(slug);
+    const resolvedParams = await params;
+    const guide = await getGuideData(resolvedParams.slug);
     if (!guide) return { title: "Không tìm thấy hướng dẫn" };
 
     return {
@@ -60,10 +59,7 @@ export async function generateMetadata({
       },
     };
   } catch (error) {
-    console.error(
-      `[generateMetadata] Lỗi khi lấy dữ liệu hướng dẫn ${params.slug}:`,
-      error
-    );
+    console.error(`[generateMetadata] Lỗi khi lấy dữ liệu hướng dẫn:`, error);
     return { title: "Lỗi Server" };
   }
 }
@@ -124,11 +120,11 @@ async function GuideList() {
 export default async function GuideDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   try {
-    const { slug } = await params;
-    const guide = await getGuideData(slug);
+    const resolvedParams = await params;
+    const guide = await getGuideData(resolvedParams.slug);
     if (!guide) notFound();
 
     const formattedDate = new Date(
@@ -223,7 +219,7 @@ export default async function GuideDetailPage({
       </main>
     );
   } catch (error) {
-    console.error(`Lỗi khi render hướng dẫn ${params.slug}:`, error);
+    console.error(`Lỗi khi render hướng dẫn:`, error);
     return (
       <main className="flex items-center justify-center h-screen">
         <div className="text-center">
