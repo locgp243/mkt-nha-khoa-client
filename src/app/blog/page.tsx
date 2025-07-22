@@ -1,5 +1,4 @@
 // app/blog/page.tsx
-
 import { PostCard } from "@/components/PostCard";
 import { PostService } from "@/lib/api/services/post.service";
 import { Post } from "@/types/post";
@@ -13,10 +12,13 @@ const POSTS_PER_PAGE = 3;
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams?: { page?: string };
+  searchParams?: Promise<{ page?: string }>;
 }) {
+  // Await searchParams để lấy giá trị
+  const params = await searchParams;
+
   // Lấy trang hiện tại từ URL, mặc định là 1
-  const currentPage = Number(searchParams?.page) || 1;
+  const currentPage = Number(params?.page) || 1;
 
   // Khai báo biến để hứng kết quả
   let posts: Post[] = [];
