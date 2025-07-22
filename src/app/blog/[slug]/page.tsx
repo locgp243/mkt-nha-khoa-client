@@ -30,7 +30,7 @@ const getPostData = cache(async (slug: string) => {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   try {
     const { slug } = await params;
@@ -60,10 +60,7 @@ export async function generateMetadata({
       },
     };
   } catch (error) {
-    console.error(
-      `[generateMetadata] Lỗi khi lấy dữ liệu bài viết ${params.slug}:`,
-      error
-    );
+    console.error(`[generateMetadata] Lỗi khi lấy dữ liệu bài viết:`, error);
     return {
       title: "Lỗi Server",
       description: "Không thể tải dữ liệu cho bài viết này.",
@@ -95,7 +92,7 @@ export async function generateStaticParams() {
 export default async function PostDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   try {
     const { slug } = await params;
@@ -206,7 +203,7 @@ export default async function PostDetailPage({
       </main>
     );
   } catch (error) {
-    console.error(`Lỗi khi render bài viết ${params.slug}:`, error);
+    console.error(`Lỗi khi render bài viết:`, error);
     return (
       <main className="flex items-center justify-center h-screen">
         <div className="text-center">
