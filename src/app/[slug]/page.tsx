@@ -27,10 +27,12 @@ const getPageData = cache(async (slug: string) => {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   try {
-    const page = await getPageData(params.slug);
+    // Await params để lấy giá trị thực
+    const { slug } = await params;
+    const page = await getPageData(slug);
 
     if (!page) {
       return { title: "Không tìm thấy trang" };
@@ -46,10 +48,7 @@ export async function generateMetadata({
       },
     };
   } catch (error) {
-    console.error(
-      `[generateMetadata] Lỗi khi lấy dữ liệu trang ${params.slug}:`,
-      error
-    );
+    console.error(`[generateMetadata] Lỗi khi lấy dữ liệu trang:`, error);
     return {
       title: "Lỗi Server",
       description: "Không thể tải dữ liệu cho trang này.",
@@ -78,11 +77,14 @@ export async function generateStaticParams() {
 export default async function StaticPageDetail({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   try {
+    // Await params để lấy giá trị thực
+    const { slug } = await params;
+
     // Dùng lại hàm đã được cache, Next.js sẽ không gọi lại API
-    const page = await getPageData(params.slug);
+    const page = await getPageData(slug);
 
     if (!page) {
       notFound();
@@ -133,7 +135,7 @@ export default async function StaticPageDetail({
               headline: page.title,
               name: page.title,
               description: page.meta_description,
-              url: `https://yourdomain.com/${params.slug}`,
+              url: `https://yourdomain.com/${slug}`,
               datePublished: page.created_at,
               dateModified: page.updated_at,
               publisher: {
@@ -150,7 +152,7 @@ export default async function StaticPageDetail({
       </main>
     );
   } catch (error) {
-    console.error(`Lỗi khi render trang ${params.slug}:`, error);
+    console.error(`Lỗi khi render trang:`, error);
     return (
       <main className="flex items-center justify-center h-screen">
         <div className="text-center">

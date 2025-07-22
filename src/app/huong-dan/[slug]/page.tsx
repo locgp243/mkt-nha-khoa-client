@@ -42,7 +42,9 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   try {
-    const guide = await getGuideData(params.slug);
+    const { slug } = await params;
+
+    const guide = await getGuideData(slug);
     if (!guide) return { title: "Không tìm thấy hướng dẫn" };
 
     return {
@@ -125,7 +127,8 @@ export default async function GuideDetailPage({
   params: { slug: string };
 }) {
   try {
-    const guide = await getGuideData(params.slug);
+    const { slug } = await params;
+    const guide = await getGuideData(slug);
     if (!guide) notFound();
 
     const formattedDate = new Date(

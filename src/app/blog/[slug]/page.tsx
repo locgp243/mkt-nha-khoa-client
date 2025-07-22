@@ -33,7 +33,8 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   try {
-    const post = await getPostData(params.slug);
+    const { slug } = await params;
+    const post = await getPostData(slug);
 
     if (!post) {
       return { title: "Không tìm thấy bài viết" };
@@ -97,9 +98,10 @@ export default async function PostDetailPage({
   params: { slug: string };
 }) {
   try {
-    // Dùng lại hàm đã được cache, không gọi lại API
-    const post = await getPostData(params.slug);
+    const { slug } = await params;
+    const post = await getPostData(slug);
 
+    // Dùng lại hàm đã được cache, không gọi lại API
     if (!post) {
       notFound();
     }
