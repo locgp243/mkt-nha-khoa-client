@@ -1,18 +1,25 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { StaticPageService } from "@/lib/api/services/static_page.service";
 
 // Import các component UI cần thiết
-// import {
-//   Breadcrumb,
-//   BreadcrumbItem,
-//   BreadcrumbLink,
-//   BreadcrumbList,
-//   BreadcrumbPage,
-//   BreadcrumbSeparator,
-// } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { HeroSection } from "@/components/hero-section";
+
+// Bọc hàm lấy dữ liệu trong `cache` để tránh gọi API nhiều lần
+const getPageData = cache(async (slug: string) => {
+  const response = await StaticPageService.getBySlug(slug);
+  return response.data;
+});
 
 // =================================================================
 // STEP 1: GENERATE METADATA (TỐI ƯU SEO)
@@ -23,8 +30,7 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   try {
-    const response = await StaticPageService.getBySlug(params.slug);
-    const page = response.data;
+    const page = await getPageData(params.slug);
 
     if (!page) {
       return { title: "Không tìm thấy trang" };
@@ -36,7 +42,7 @@ export async function generateMetadata({
       openGraph: {
         title: page.seo_title || page.title,
         description: page.meta_description || "",
-        type: "website", // Trang tĩnh nên dùng 'website'
+        type: "website",
       },
     };
   } catch (error) {
@@ -56,7 +62,7 @@ export async function generateMetadata({
 // =================================================================
 export async function generateStaticParams() {
   try {
-    const response = await StaticPageService.getAll(); // Giả sử em có hàm getAll
+    const response = await StaticPageService.getAll();
     return response.data.map((page) => ({
       slug: page.slug,
     }));
@@ -74,82 +80,86 @@ export default async function StaticPageDetail({
 }: {
   params: { slug: string };
 }) {
-  const response = await StaticPageService.getBySlug(params.slug);
-  const page = response.data;
+  try {
+    // Dùng lại hàm đã được cache, Next.js sẽ không gọi lại API
+    const page = await getPageData(params.slug);
 
-  if (!page) {
-    notFound();
-  }
+    if (!page) {
+      notFound();
+    }
 
-  return (
-    <main className="bg-white">
-      <HeroSection
-        title={page.title}
-        // Trang tĩnh thường không có ảnh đại diện, ta dùng ảnh mặc định
-        imageSrc={"/logo/banner_blogs.jpg"}
-        imageAlt={page.title}
-      />
-      <article className="w-full bg-blue-50">
-        {/* Bố cục 1 cột, không có sidebar */}
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          {/* <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{page.title}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb> */}
+    return (
+      <main className="bg-white">
+        <HeroSection
+          title={page.title}
+          imageSrc={"/logo/banner_blogs.jpg"}
+          imageAlt={page.title}
+        />
+        <article className="w-full bg-muted">
+          <div className="max-w-4xl mx-auto px-4 py-12">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{page.title}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
-          {/* ===== Page Header ===== */}
-          <header className="mt-8">
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-              {page.title}
-            </h1>
-            {/* Trang tĩnh không có tác giả hay ngày đăng nên ta bỏ phần đó đi */}
-          </header>
+            <header className="mt-8">
+              <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+                {page.title}
+              </h1>
+            </header>
 
-          <Separator className="my-8" />
+            <Separator className="my-8" />
 
-          {/* ===== Page Content ===== */}
-          <div
-            className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary-dark"
-            dangerouslySetInnerHTML={{ __html: page.content || "" }}
-          />
-        </div>
-      </article>
+            <div
+              className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-primary"
+              dangerouslySetInnerHTML={{ __html: page.content || "" }}
+            />
+          </div>
+        </article>
 
-      {/* Trang tĩnh không có các bài viết liên quan */}
-
-      {/* ================================================================= */}
-      {/* STEP 4: STRUCTURED DATA (JSON-LD) - SIÊU TỐT CHO SEO         */}
-      {/* ================================================================= */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage", // Dùng 'WebPage' cho các trang thông tin chung
-            headline: page.title,
-            name: page.title,
-            description: page.meta_description,
-            url: `https://yourdomain.com/${page.slug}`, // Thay bằng domain của em
-            datePublished: page.created_at,
-            dateModified: page.updated_at,
-            publisher: {
-              "@type": "Organization",
-              name: "Tên Thương Hiệu Của Em",
-              logo: {
-                "@type": "ImageObject",
-                url: "/logo/your-logo.png",
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              headline: page.title,
+              name: page.title,
+              description: page.meta_description,
+              url: `https://yourdomain.com/${params.slug}`,
+              datePublished: page.created_at,
+              dateModified: page.updated_at,
+              publisher: {
+                "@type": "Organization",
+                name: "Tên Thương Hiệu Của Em",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "/logo/your-logo.png",
+                },
               },
-            },
-          }),
-        }}
-      />
-    </main>
-  );
+            }),
+          }}
+        />
+      </main>
+    );
+  } catch (error) {
+    console.error(`Lỗi khi render trang ${params.slug}:`, error);
+    return (
+      <main className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Đã có lỗi xảy ra</h1>
+          <p>
+            Không thể tải được nội dung của trang này. Vui lòng thử lại sau.
+          </p>
+        </div>
+      </main>
+    );
+  }
 }

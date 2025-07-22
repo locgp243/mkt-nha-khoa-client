@@ -1,7 +1,10 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { PostService } from "@/lib/api/services/post.service";
+
+// Import các component UI
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,193 +18,200 @@ import { HeroSection } from "@/components/hero-section";
 import { RelatedPosts } from "@/components/related-posts";
 import { CategoryList } from "@/components/category-list";
 
+// BƯỚC 1: Tạo hàm lấy dữ liệu được bọc bởi `cache`
+const getPostData = cache(async (slug: string) => {
+  const response = await PostService.getBySlug(slug);
+  return response.data;
+});
+
 // =================================================================
-// STEP 1: GENERATE METADATA (QUAN TRỌNG NHẤT CHO SEO)
+// STEP 1: GENERATE METADATA (TỐI ƯU SEO VÀ XỬ LÝ LỖI)
 // =================================================================
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const response = await PostService.getBySlug(params.slug);
-  const post = response.data;
+  try {
+    const post = await getPostData(params.slug);
 
-  if (!post) {
+    if (!post) {
+      return { title: "Không tìm thấy bài viết" };
+    }
+
     return {
-      title: "Không tìm thấy bài viết",
-      description: "Bài viết bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
-    };
-  }
-
-  return {
-    title: post.seo_title || post.title,
-    description: post.meta_description || post.excerpt,
-    openGraph: {
       title: post.seo_title || post.title,
       description: post.meta_description || post.excerpt,
-      type: "article",
-      publishedTime: post.published_at || post.created_at,
-      authors: [post.creator_name],
-      images: [
-        {
-          url: post.featured_image_url || "/logo/banner_blogs.jpg",
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
-    },
-  };
+      openGraph: {
+        title: post.seo_title || post.title,
+        description: post.meta_description || post.excerpt,
+        type: "article",
+        publishedTime: post.published_at || post.created_at,
+        authors: [post.creator_name],
+        images: [
+          {
+            url: post.featured_image_url || "/logo/banner_blogs.jpg",
+            width: 1200,
+            height: 630,
+            alt: post.title,
+          },
+        ],
+      },
+    };
+  } catch (error) {
+    console.error(
+      `[generateMetadata] Lỗi khi lấy dữ liệu bài viết ${params.slug}:`,
+      error
+    );
+    return {
+      title: "Lỗi Server",
+      description: "Không thể tải dữ liệu cho bài viết này.",
+    };
+  }
 }
 
 // =================================================================
-// STEP 2: GENERATE STATIC PARAMS (ĐỂ BUILD TRANG TĨNH - SSG)
+// STEP 2: GENERATE STATIC PARAMS (XỬ LÝ LỖI)
 // =================================================================
 export async function generateStaticParams() {
-  const response = await PostService.getAll({ limit: 1000 });
-  return response.data.map((post) => ({
-    slug: post.slug,
-  }));
+  try {
+    const response = await PostService.getAll({ limit: 1000 });
+    return response.data.map((post) => ({
+      slug: post.slug,
+    }));
+  } catch (error) {
+    console.error(
+      "[generateStaticParams] Lỗi khi lấy danh sách bài viết:",
+      error
+    );
+    return [];
+  }
 }
 
 // =================================================================
-// STEP 3: THE PAGE COMPONENT
+// STEP 3: THE PAGE COMPONENT (TỐI ƯU VÀ XỬ LÝ LỖI)
 // =================================================================
 export default async function PostDetailPage({
   params,
 }: {
   params: { slug: string };
 }) {
-  const response = await PostService.getBySlug(params.slug);
-  console.log("API Response:", response);
-  const post = response.data;
-  console.log("Post detail:", post);
-  console.log("Post content:", post.content);
+  try {
+    // Dùng lại hàm đã được cache, không gọi lại API
+    const post = await getPostData(params.slug);
 
-  if (!post) {
-    notFound();
-  }
+    if (!post) {
+      notFound();
+    }
 
-  const formattedDate = new Date(
-    post.published_at || post.created_at
-  ).toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+    const formattedDate = new Date(
+      post.published_at || post.created_at
+    ).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
 
-  // ===== XỬ LÝ AN TOÀN CHO CONTENT =====
-  const safeContent =
-    post.content && typeof post.content === "string" ? post.content.trim() : "";
+    return (
+      <main className="bg-white">
+        <HeroSection
+          title={post.title}
+          imageSrc={post.featured_image_url || "/logo/banner_blogs.jpg"}
+          imageAlt={post.title}
+        />
+        <article className="w-full bg-muted">
+          <div className="max-w-5xl mx-auto px-4 py-12 flex flex-col lg:flex-row gap-8">
+            <div className="w-full lg:w-2/3">
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/blog">Blog</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{post.title}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
 
-  // Debug: Kiểm tra loại dữ liệu
-  console.log("Content type:", typeof post.content);
-  console.log("Content value:", post.content);
-
-  return (
-    <main className="bg-white">
-      <HeroSection
-        title={post.title}
-        imageSrc={post.featured_image_url || "/logo/banner_blogs.jpg"}
-        imageAlt={post.title}
-      />
-      <article className="w-full bg-blue-50">
-        <div className="max-w-5xl mx-auto px-4 py-12 flex flex-col lg:flex-row gap-8">
-          <div className="w-full lg:w-2/3">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/blog">Blog</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{post.title}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            {/* ===== Post Header ===== */}
-            <header className="mt-8">
-              <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-                {post.title}
-              </h1>
-              <p className="mt-4 text-lg text-gray-500">
-                Bởi {post.creator_name} • {formattedDate} • {post.category_name}
-              </p>
-            </header>
-
-            {/* ===== Featured Image ===== */}
-            {post.featured_image_url && (
-              <div className="relative w-full aspect-[16/9] mt-8 rounded-lg overflow-hidden">
-                <Image
-                  src={post.featured_image_url}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            )}
-
-            <Separator className="my-8" />
-
-            {/* ===== Post Content ===== */}
-            {safeContent ? (
-              <div
-                className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-primary hover:prose-a:text-primary-dark"
-                dangerouslySetInnerHTML={{ __html: safeContent }}
-              />
-            ) : (
-              <div className="prose prose-lg max-w-none">
-                <p className="text-gray-500 italic">
-                  Nội dung bài viết không có sẵn.
+              <header className="mt-8">
+                <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+                  {post.title}
+                </h1>
+                <p className="mt-4 text-lg text-gray-500">
+                  Bởi {post.creator_name} • {formattedDate} •{" "}
+                  {post.category_name}
                 </p>
-              </div>
-            )}
-          </div>
-          <div className="w-full lg:w-1/3">
-            <CategoryList />
-          </div>
-        </div>
-      </article>
-      <RelatedPosts />
+              </header>
 
-      <Separator className="my-12" />
+              {post.featured_image_url && (
+                <div className="relative w-full aspect-[16/9] mt-8 rounded-lg overflow-hidden">
+                  <Image
+                    src={post.featured_image_url}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              )}
 
-      {/* ================================================================= */}
-      {/* STEP 4: STRUCTURED DATA (JSON-LD) - SIÊU TỐT CHO SEO         */}
-      {/* ================================================================= */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            headline: post.title,
-            name: post.title,
-            description: post.meta_description || post.excerpt,
-            image: post.featured_image_url || "/logo/banner_blogs.jpg",
-            datePublished: post.published_at || post.created_at,
-            dateModified: post.updated_at,
-            author: {
-              "@type": "Person",
-              name: post.creator_name,
-            },
-            publisher: {
-              "@type": "Organization",
-              name: "Tên Phòng Khám Của Em",
-              logo: {
-                "@type": "ImageObject",
-                url: "/logo/your-logo.png",
+              <Separator className="my-8" />
+
+              <div
+                className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-primary"
+                dangerouslySetInnerHTML={{ __html: post.content || "" }}
+              />
+            </div>
+            <div className="w-full lg:w-1/3">
+              <CategoryList />
+            </div>
+          </div>
+        </article>
+        <RelatedPosts />
+        <Separator className="my-12" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              headline: post.title,
+              name: post.title,
+              description: post.meta_description || post.excerpt,
+              image: post.featured_image_url || "/logo/banner_blogs.jpg",
+              datePublished: post.published_at || post.created_at,
+              dateModified: post.updated_at,
+              author: {
+                "@type": "Person",
+                name: post.creator_name,
               },
-            },
-          }),
-        }}
-      />
-    </main>
-  );
+              publisher: {
+                "@type": "Organization",
+                name: "Tên Thương Hiệu Của Em",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "/logo/your-logo.png",
+                },
+              },
+            }),
+          }}
+        />
+      </main>
+    );
+  } catch (error) {
+    console.error(`Lỗi khi render bài viết ${params.slug}:`, error);
+    return (
+      <main className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Đã có lỗi xảy ra</h1>
+          <p>Không thể tải được nội dung bài viết. Vui lòng thử lại sau.</p>
+        </div>
+      </main>
+    );
+  }
 }
