@@ -12,18 +12,19 @@ import { Pagination as PaginationInfo } from "@/types/pagination";
 const POSTS_PER_PAGE = 2;
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     page?: string;
-  };
+  }>;
 }
 
 // ✨ Tối ưu SEO: Generate metadata động cho trang (Giữ nguyên)
 export async function generateMetadata({ params }: CategoryPageProps) {
   try {
-    const categoryData = await CategoryService.getBySlug(params.slug);
+    const resolvedParams = await params;
+    const categoryData = await CategoryService.getBySlug(resolvedParams.slug);
     return {
       title: categoryData.data.name,
       description: categoryData.data.description,
@@ -39,8 +40,12 @@ export default async function CategoryPage({
   params,
   searchParams,
 }: CategoryPageProps) {
+  // Await params và searchParams
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
   // Lấy trang hiện tại từ URL, mặc định là 1
-  const currentPage = Number(searchParams?.page) || 1;
+  const currentPage = Number(resolvedSearchParams?.page) || 1;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let category: any = null;
@@ -51,8 +56,8 @@ export default async function CategoryPage({
     // Gọi song song 2 API để tối ưu tốc độ
     // Fetch dữ liệu cho ĐÚNG trang hiện tại (currentPage)
     const [categoryRes, postsRes] = await Promise.all([
-      CategoryService.getBySlug(params.slug),
-      PostService.getByCategorySlug(params.slug, {
+      CategoryService.getBySlug(resolvedParams.slug),
+      PostService.getByCategorySlug(resolvedParams.slug, {
         page: currentPage,
         limit: POSTS_PER_PAGE,
       }),
@@ -63,7 +68,10 @@ export default async function CategoryPage({
     pagination = postsRes.pagination;
   } catch (err) {
     // Nếu không fetch được dữ liệu (ví dụ slug sai), sẽ trả về trang 404
-    console.error(`Failed to fetch data for category ${params.slug}:`, err);
+    console.error(
+      `Failed to fetch data for category ${resolvedParams.slug}:`,
+      err
+    );
     notFound();
   }
 
@@ -93,7 +101,7 @@ export default async function CategoryPage({
               <CustomPagination
                 totalPages={pagination?.total_pages || 1}
                 currentPage={currentPage}
-                baseUrl={`/danh-muc/${params.slug}`}
+                baseUrl={`/danh-muc/${resolvedParams.slug}`}
                 className="mt-12"
               />
             </>
