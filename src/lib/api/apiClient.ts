@@ -8,16 +8,7 @@ class ApiError extends Error {
   }
 }
 
-// Định nghĩa kiểu cho fetch options
-interface FetchOptions {
-  cache?: RequestCache;
-  next?: {
-    revalidate?: number | false;
-    tags?: string[];
-  };
-}
-
-const apiClient = async (endpoint: string, options: FetchOptions = {}) => {
+const apiClient = async (endpoint: string) => {
   // Lấy URL gốc của API từ biến môi trường
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -30,17 +21,14 @@ const apiClient = async (endpoint: string, options: FetchOptions = {}) => {
   // Nối URL gốc với endpoint để tạo ra một URL tuyệt đối
   const fullUrl = `${baseUrl}${endpoint}`;
 
-  console.log(`Đang gọi đến API: ${fullUrl}`, options); // Thêm log để debug
+  console.log(`Đang gọi đến API: ${fullUrl}`); // Thêm log để debug
 
   try {
-    // Merge default options với options được truyền vào
-    const fetchOptions: RequestInit = {
-      // Mặc định sử dụng cache thay vì no-store
-      cache: options.cache || "force-cache",
-      ...options, // Spread options để có thể override cache và thêm next config
-    };
-
-    const response = await fetch(fullUrl, fetchOptions);
+    const response = await fetch(fullUrl, {
+      // Cấu hình cache cho Next.js, giúp tối ưu hiệu suất
+      // 'force-cache' là mặc định, 'no-store' để luôn lấy dữ liệu mới
+      cache: "force-cache",
+    });
 
     if (!response.ok) {
       // Nếu response trả về lỗi (4xx, 5xx), chúng ta ném ra lỗi
@@ -60,5 +48,3 @@ const apiClient = async (endpoint: string, options: FetchOptions = {}) => {
 };
 
 export default apiClient;
-export { ApiError };
-export type { FetchOptions };
