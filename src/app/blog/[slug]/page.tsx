@@ -111,11 +111,16 @@ export default async function PostDetailPage({
       year: "numeric",
     });
 
+    const imageUrl = post.featured_image_url
+      ? new URL(post.featured_image_url, process.env.NEXT_PUBLIC_API_BASE_URL)
+          .href
+      : "/logo/banner.jpg";
+
     return (
       <main className="bg-white">
         <HeroSection
           title={post.title}
-          imageSrc={post.featured_image_url || "/logo/banner_blogs.jpg"}
+          imageSrc={imageUrl}
           imageAlt={post.title}
         />
         <article className="w-full bg-muted">
@@ -150,7 +155,10 @@ export default async function PostDetailPage({
               {post.featured_image_url && (
                 <div className="relative w-full aspect-[16/9] mt-8 rounded-lg overflow-hidden">
                   <Image
-                    src={post.featured_image_url}
+                    src={
+                      process.env.NEXT_PUBLIC_API_BASE_URL +
+                      post.featured_image_url
+                    }
                     alt={post.title}
                     fill
                     className="object-cover"

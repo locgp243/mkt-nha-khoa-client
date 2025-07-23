@@ -4,7 +4,7 @@ import { PostService } from "@/lib/api/services/post.service";
 import { CustomPagination } from "@/components/CustomPagination";
 import Breadcrumb from "@/app/blog/breadcrumb";
 
-const POSTS_PER_PAGE = 4;
+const POSTS_PER_PAGE = 3;
 
 // =================================================================
 // ## ĐỊNH NGHĨA TYPE CHO PROPS CỦA TRANG (NEXT.JS 15 COMPATIBLE)

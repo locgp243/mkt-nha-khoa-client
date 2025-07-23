@@ -40,13 +40,13 @@ interface TransformedPlan {
 export default function BangGiaPage() {
   // --- Bổ sung các state để quản lý dữ liệu động ---
   const [pricingPlans, setPricingPlans] = useState<TransformedPlan[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [loading, setLoading] = useState<boolean>(true);
+  // const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPricingData = async () => {
       try {
-        setLoading(true);
+        // setLoading(true);
         const response = await PrincingService.getAll({});
 
         console.log("Dữ liệu thực tế từ API:", response);
@@ -70,12 +70,12 @@ export default function BangGiaPage() {
         }));
 
         setPricingPlans(transformedData);
-        setError(null);
+        // setError(null);
       } catch (err) {
         console.error("Lỗi khi fetch bảng giá:", err);
-        setError("Không thể tải bảng giá. Vui lòng thử lại sau.");
+        // setError("Không thể tải bảng giá. Vui lòng thử lại sau.");
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
@@ -293,21 +293,21 @@ export default function BangGiaPage() {
   };
 
   // --- Bổ sung xử lý loading và error cho UX tốt hơn ---
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p className="text-xl font-semibold">Đang tải dữ liệu...</p>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex h-screen items-center justify-center">
+  //       <p className="text-xl font-semibold">Đang tải dữ liệu...</p>
+  //     </div>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p className="text-xl font-semibold text-red-600">{error}</p>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="flex h-screen items-center justify-center">
+  //       <p className="text-xl font-semibold text-red-600">{error}</p>
+  //     </div>
+  //   );
+  // }
   // ----------------------------------------------------
 
   return (
@@ -385,7 +385,7 @@ export default function BangGiaPage() {
           Bảng giá phần mềm quản lý nha khoa
         </h1>
         <span className="text-black">
-          <Link href="#" className="text-[#018DCC] hover:underline">
+          <Link href="#" className="text-primary hover:underline">
             {" "}
             Phần mềm quản lý nha khoa Maydental
           </Link>{" "}
@@ -556,7 +556,7 @@ export default function BangGiaPage() {
         </div>
         <span className="text-black">
           Xem thêm{" "}
-          <Link href="#" className="text-[#018DCC] hover:underline">
+          <Link href="#" className="text-primary hover:underline">
             {" "}
             Vì sao nên chọn phần mềm nha khoa online?
           </Link>

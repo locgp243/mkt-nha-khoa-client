@@ -8,7 +8,15 @@ class ApiError extends Error {
   }
 }
 
-const apiClient = async (endpoint: string) => {
+type FetchOptions = {
+  cache?: "force-cache" | "no-store";
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
+};
+
+const apiClient = async (endpoint: string, options: FetchOptions = {}) => {
   // Lấy URL gốc của API từ biến môi trường
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -18,31 +26,25 @@ const apiClient = async (endpoint: string) => {
     );
   }
 
-  // Nối URL gốc với endpoint để tạo ra một URL tuyệt đối
   const fullUrl = `${baseUrl}${endpoint}`;
-
-  console.log(`Đang gọi đến API: ${fullUrl}`); // Thêm log để debug
+  console.log(`Đang gọi đến API: ${fullUrl} với options:`, options);
 
   try {
     const response = await fetch(fullUrl, {
-      // Cấu hình cache cho Next.js, giúp tối ưu hiệu suất
-      // 'force-cache' là mặc định, 'no-store' để luôn lấy dữ liệu mới
-      cache: "force-cache",
+      // Đặt một giá trị mặc định thông minh, ví dụ revalidate sau 10 phút
+      // Dùng spread operator để ghi đè giá trị mặc định bằng options do người dùng truyền vào
+      ...options,
     });
 
     if (!response.ok) {
-      // Nếu response trả về lỗi (4xx, 5xx), chúng ta ném ra lỗi
       throw new ApiError(
         `Lỗi API tại endpoint: ${endpoint} với status ${response.status}`
       );
     }
 
-    // Nếu thành công, parse JSON và trả về
     return response.json();
   } catch (error) {
-    // Bắt các lỗi mạng hoặc lỗi từ logic ở trên
     console.error("Lỗi trong apiClient:", error);
-    // Ném lại lỗi để component có thể xử lý (ví dụ: hiển thị trang 404)
     throw error;
   }
 };

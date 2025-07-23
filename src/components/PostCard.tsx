@@ -15,17 +15,17 @@ export function PostCard({ post }: PostCardProps) {
     month: "2-digit",
     year: "numeric",
   });
-
+  const imageUrl = post.featured_image_url
+    ? new URL(post.featured_image_url, process.env.NEXT_PUBLIC_API_BASE_URL)
+        .href
+    : "/logo/banner.jpg";
   return (
     <Link href={`/blog/${post.slug}`} className="block group h-full">
       <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <CardHeader className="p-0">
           <div className="relative w-full aspect-video">
             <Image
-              src={
-                post.featured_image_url ||
-                "/logo/blog/giamthatthoattrongquanlynhakhoa.jpeg"
-              } // Ảnh mặc định
+              src={imageUrl}
               alt={post.title}
               fill
               className="object-cover"

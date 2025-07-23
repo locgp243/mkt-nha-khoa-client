@@ -150,7 +150,7 @@ export default function PhanMemPage() {
               trong vòng 1 phút, xem toàn bộ thông tin quá trình khám chữa bệnh
               của bệnh nhân với thao tác đơn giản, tiết kiệm 1 giờ mỗi ngày
             </p>
-            <div className="w-24 h-1 bg-[#1DBCE7] mt-4"></div>
+            <div className="w-24 h-1 bg-primary mt-4"></div>
           </div>
 
           {/* Content Grid: Benefits (left) and Image (right) */}
@@ -165,7 +165,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"
@@ -183,12 +183,12 @@ export default function PhanMemPage() {
               <div className="mt-8 hover:text-blue-800 transition-colors cursor-pointer">
                 <p className="font-semibold text-sm text-black">
                   Xem Video:{" "}
-                  <span className=" text-[#1DBCE7]">
+                  <span className=" text-primary">
                     Thực hiện các công việc cơ bản tại phòng khám nha khoa trong
                     1 nốt nhạc{" "}
                   </span>{" "}
                   trên{" "}
-                  <span className=" text-[#1DBCE7]">
+                  <span className=" text-primary">
                     phần mềm quản lý nha khoa Maydental
                   </span>
                 </p>
@@ -224,7 +224,7 @@ export default function PhanMemPage() {
               </p>
             </div>
             <div className="flex justify-end">
-              <div className="w-24 h-1 bg-[#1DBCE7] mt-4 text-right"></div>
+              <div className="w-24 h-1 bg-primary mt-4 text-right"></div>
             </div>
           </div>
 
@@ -250,7 +250,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"
@@ -289,7 +289,7 @@ export default function PhanMemPage() {
               thu, chi để có kế hoạch phát triển phòng khám hợp lý, giúp đem lại
               lợi nhuận tối đa.
             </p>
-            <div className="w-24 h-1 bg-[#1DBCE7] mt-4"></div>
+            <div className="w-24 h-1 bg-primary mt-4"></div>
           </div>
 
           {/* Content Grid: Benefits (left) and Image (right) */}
@@ -304,7 +304,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"
@@ -320,7 +320,7 @@ export default function PhanMemPage() {
 
               {/* Action Button */}
               <div className="mt-8 transition-colors cursor-pointer">
-                <button className="bg-[#018DCA] text-white py-2 px-9 rounded-xl cursor-pointer hover:opacity-90 transition-opacity">
+                <button className="bg-primary text-white py-2 px-9 rounded-xl cursor-pointer hover:opacity-90 transition-opacity">
                   Chi phí sử dụng
                 </button>
               </div>
@@ -358,7 +358,7 @@ export default function PhanMemPage() {
               </p>
             </div>
             <div className="flex justify-end">
-              <div className="w-24 h-1 bg-[#1DBCE7] mt-4 text-right"></div>
+              <div className="w-24 h-1 bg-primary mt-4 text-right"></div>
             </div>
           </div>
 
@@ -384,7 +384,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"
@@ -402,7 +402,7 @@ export default function PhanMemPage() {
               <div className="mt-8 transition-colors cursor-pointer">
                 <p className="font-medium text-sm text-black">
                   Xem thêm{" "}
-                  <span className=" text-[#1DBCE7]">
+                  <span className=" text-primary">
                     Vì sao nên chọn phần mềm nha khoa online?
                   </span>
                 </p>
@@ -424,7 +424,7 @@ export default function PhanMemPage() {
               Bao gồm hơn 20 danh mục dữ liệu phần mềm được quản lý và tập trung
               đồng nhất.
             </p>
-            <div className="w-24 h-1 bg-[#1DBCE7] mt-4"></div>
+            <div className="w-24 h-1 bg-primary mt-4"></div>
           </div>
 
           {/* Content Grid: Benefits (left) and Image (right) */}
@@ -439,7 +439,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"
@@ -484,7 +484,7 @@ export default function PhanMemPage() {
               </p>
             </div>
             <div className="flex justify-end">
-              <div className="w-24 h-1 bg-[#1DBCE7] mt-4 text-right"></div>
+              <div className="w-24 h-1 bg-primary mt-4 text-right"></div>
             </div>
           </div>
 
@@ -510,7 +510,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"
@@ -547,7 +547,7 @@ export default function PhanMemPage() {
               Phân loại, xử lý hàng trăm khách hàng cần tư vấn nhanh chóng nhờ
               nội dung được hiển thị rõ ràng bằng màu sắc nhận diện.
             </p>
-            <div className="w-24 h-1 bg-[#1DBCE7] mt-4"></div>
+            <div className="w-24 h-1 bg-primary mt-4"></div>
           </div>
 
           {/* Content Grid: Benefits (left) and Image (right) */}
@@ -562,7 +562,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"
@@ -578,7 +578,7 @@ export default function PhanMemPage() {
 
               {/* Action Button */}
               <div className="mt-8 transition-colors cursor-pointer">
-                <button className="bg-[#018DCA] text-white py-2 px-9 rounded-xl cursor-pointer hover:opacity-90 transition-opacity">
+                <button className="bg-primary text-white py-2 px-9 rounded-xl cursor-pointer hover:opacity-90 transition-opacity">
                   Chi phí sử dụng
                 </button>
               </div>
@@ -613,7 +613,7 @@ export default function PhanMemPage() {
               </p>
             </div>
             <div className="flex justify-end">
-              <div className="w-24 h-1 bg-[#1DBCE7] mt-4 text-right"></div>
+              <div className="w-24 h-1 bg-primary mt-4 text-right"></div>
             </div>
           </div>
 
@@ -639,7 +639,7 @@ export default function PhanMemPage() {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="#1DBCE7"
-                        className="w-6 h-6 text-[#1DBCE7]"
+                        className="w-6 h-6 text-primary"
                       >
                         <path
                           fillRule="evenodd"

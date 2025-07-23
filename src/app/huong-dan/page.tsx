@@ -121,7 +121,7 @@ export default async function HuongDanPage() {
                 <div className="w-full flex items-center">
                   <div className="w-[30%] flex-shrink-0">
                     <Image
-                      src={card.iconSrc}
+                      src={process.env.NEXT_PUBLIC_API_BASE_URL + card.iconSrc}
                       alt={card.title} // Đảm bảo alt text mô tả đúng hình ảnh
                       width={80}
                       height={80}

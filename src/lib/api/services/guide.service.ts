@@ -34,7 +34,7 @@ const getAll = (
     ? `${ENDPOINTS.POSTS.LIST}?${queryString}`
     : ENDPOINTS.POSTS.LIST;
 
-  return apiClient(endpoint);
+  return apiClient(endpoint, { cache: "no-store" });
 };
 
 /**

@@ -10,5 +10,5 @@ interface SettingsResponse {
 }
 
 export const getGlobalSettings = (): Promise<SettingsResponse> => {
-  return apiClient(ENDPOINTS.SETTINGS.GET); // Giả sử em có ENDPOINTS.SETTINGS.GET = "/api/public/settings"
+  return apiClient(ENDPOINTS.SETTINGS.GET, { cache: "no-store" }); // Giả sử em có ENDPOINTS.SETTINGS.GET = "/api/public/settings"
 };

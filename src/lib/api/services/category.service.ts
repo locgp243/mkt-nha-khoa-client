@@ -13,7 +13,7 @@ const getAll = ({}): Promise<ApiResponse<Category>> => {
 
 const getBySlug = (slug: string): Promise<SingleCategoryResponse> => {
   const endpoint = ENDPOINTS.CATEGORIES.DETAIL(slug);
-  return apiClient(endpoint);
+  return apiClient(endpoint, { cache: "no-store" });
 };
 // Gom tất cả các hàm vào một object 'CategoryService' để export, giúp việc gọi hàm rõ ràng hơn
 export const CategoryService = {

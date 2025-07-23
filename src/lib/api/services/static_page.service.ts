@@ -15,7 +15,7 @@ const getAll = (): Promise<StaticPageListResponse> => {
  */
 const getBySlug = (slug: string): Promise<StaticPageResponse> => {
   const endpoint = ENDPOINTS.STATIC_PAGE.DETAIL(slug); // Ví dụ: /api/pages/{slug}
-  return apiClient(endpoint);
+  return apiClient(endpoint, { cache: "no-store" });
 };
 
 export const StaticPageService = {

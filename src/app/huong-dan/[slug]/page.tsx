@@ -135,11 +135,16 @@ export default async function GuideDetailPage({
       year: "numeric",
     });
 
+    const imageUrl = guide.featured_image_url
+      ? new URL(guide.featured_image_url, process.env.NEXT_PUBLIC_API_BASE_URL)
+          .href
+      : "/logo/banner.jpg";
+
     return (
       <main className="bg-white">
         <HeroSection
           title={guide.title}
-          imageSrc={guide.featured_image_url || "/logo/banner_blogs.jpg"}
+          imageSrc={imageUrl}
           imageAlt={guide.title}
         />
         <article className="w-full bg-muted">
@@ -173,7 +178,10 @@ export default async function GuideDetailPage({
               {guide.featured_image_url && (
                 <div className="relative w-full aspect-[16/9] mt-8 rounded-lg overflow-hidden">
                   <Image
-                    src={guide.featured_image_url}
+                    src={
+                      process.env.NEXT_PUBLIC_API_BASE_URL +
+                      guide.featured_image_url
+                    }
                     alt={guide.title}
                     fill
                     className="object-cover"

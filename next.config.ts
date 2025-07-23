@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "medisosoft.com",
+      },
+      {
+        protocol: "https",
         hostname: "example.com",
       },
     ],

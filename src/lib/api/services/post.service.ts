@@ -30,13 +30,15 @@ const getAll = (params: GetPostsParams = {}): Promise<PostsResponse> => {
     queryParams.append("limit", params.limit.toString());
   }
 
+  queryParams.append("status", "published");
+
   // Nối chuỗi query vào endpoint nếu có
   const queryString = queryParams.toString();
   const endpoint = queryString
     ? `${ENDPOINTS.POSTS.LIST}?${queryString}`
     : ENDPOINTS.POSTS.LIST;
 
-  return apiClient(endpoint);
+  return apiClient(endpoint, { cache: "no-store" });
 };
 /**
  * Lấy chi tiết một bài viết theo slug.
@@ -46,7 +48,7 @@ const getAll = (params: GetPostsParams = {}): Promise<PostsResponse> => {
 const getBySlug = (slug: string): Promise<PostDetailResponse> => {
   // Gọi thẳng hàm, không cần bọc trong ``
   const endpoint = ENDPOINTS.POSTS.DETAIL(slug);
-  return apiClient(endpoint);
+  return apiClient(endpoint, { cache: "no-store" });
 };
 
 const getByCategorySlug = (
@@ -75,7 +77,7 @@ const getByCategorySlug = (
 
   console.log("Fetching posts with endpoint:", endpoint); // Log để debug
 
-  return apiClient(endpoint);
+  return apiClient(endpoint, { cache: "no-store" });
 };
 // Gom tất cả các hàm vào một object 'PostService' để export, giúp việc gọi hàm rõ ràng hơn
 export const PostService = {

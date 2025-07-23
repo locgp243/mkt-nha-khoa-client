@@ -12,7 +12,7 @@ const faqItems = [
       <>
         <p className="mb-2">
           Maydental là{" "}
-          <span className="text-[#018DCA] font-semibold">
+          <span className="text-primary font-semibold">
             phần mềm quản lý nha khoa online
           </span>
           . Chúng tôi sinh ra là để giúp cho cộng đồng Bác sĩ, Nha sĩ có một
@@ -51,7 +51,7 @@ const faqItems = [
           Để yêu cầu các tính năng mới xin BS gởi email trực tiếp
           <a
             href="mailto:hello@maysoft.vn"
-            className="text-[#018DCA] hover:underline"
+            className="text-primary hover:underline"
           >
             {" "}
             hello@maysoft.vn{" "}
@@ -195,7 +195,7 @@ const faqItems = [
         hay là công nợ của từng bệnh nhân, hồ sơ bệnh nhân, giúp phòng khám số
         hóa 100% hồ sơ bệnh nhân giúp cho việc tìm kiếm và quản lý bệnh nhân một
         cách dễ dàng và rất là nhanh chóng. Xem thêm các tính năng hữu ích của{" "}
-        <Link href="/phan-mem" className="text-[#018DCC] hover:underline">
+        <Link href="/phan-mem" className="text-primary hover:underline">
           phần mềm nha khoa.
         </Link>
       </p>
@@ -215,7 +215,7 @@ const faqItems = [
     question: "Cho hỏi đường link để tải phần mềm quản lý nha khoa Maydental?",
     answer: (
       <p>
-        <Link href="/phan-mem" className="text-[#018DCC] hover:underline">
+        <Link href="/phan-mem" className="text-primary hover:underline">
           Phần mềm quản lý nha khoa
         </Link>{" "}
         Maydental được xây dựng trên công nghệ đám mây. Nhờ đó tất cả dự liệu,
@@ -224,7 +224,7 @@ const faqItems = [
         mềm ờ bất cứ đâu nhưng vẫn đảm bảo an toàn tuyệt đối về dữ liệu bằng cơ
         chế bảo mật của Amazon Web Service. Các Bác sĩ chỉ cần tham khảo các
         tính năng ưu việc của phần mềm quản lý phòng nha và{" "}
-        <Link href="/dang-ky" className="text-[#018DCC] hover:underline">
+        <Link href="/dang-ky" className="text-primary hover:underline">
           đăng ký phần mềm quản lý nha khoa
         </Link>{" "}
         tại đây. Sau đó nhận password và kích hoạt tài khoản thông qua email đã
@@ -364,14 +364,14 @@ export default function HoiDapPage() {
         <div className="mt-8">
           <span className="text-black">
             Xem thêm{" "}
-            <Link href="#" className="text-[#018DCC] hover:underline">
+            <Link href="#" className="text-primary hover:underline">
               Vì sao nên chọn phần mềm nha khoa online?
             </Link>
           </span>
           <br />
           <span className="text-black">
             Xem thêm{" "}
-            <Link href="#" className="text-[#018DCC] hover:underline">
+            <Link href="#" className="text-primary hover:underline">
               hướng dẫn quản lý phòng khám nha khoa
             </Link>
           </span>

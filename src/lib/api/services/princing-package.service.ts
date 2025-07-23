@@ -4,7 +4,7 @@ import { Pricing, ApiResponse } from "@/types/princing";
 
 const getAll = ({}): Promise<ApiResponse<Pricing>> => {
   const endpoint = ENDPOINTS.PRINCING_PACKAGE.LIST;
-  return apiClient(endpoint);
+  return apiClient(endpoint, { cache: "no-store" });
 };
 
 export const PrincingService = {

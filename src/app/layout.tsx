@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await getGlobalSettings();
     return {
-      title: settings?.site_title || "Maydental - Quản lý phòng khám",
+      title: settings?.site_title,
       description: "Phần mềm quản lý nha khoa hàng đầu Việt Nam.",
     };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
