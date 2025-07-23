@@ -5,12 +5,8 @@ import type { Metadata } from "next";
 // Services & Types
 import { GuideService } from "@/lib/api/services/guide.service";
 import { Guide } from "@/types/guide";
-
-// Import component con
-import FAQSection from "@/app/huong-dan/FAQSection"; // Component mới cho phần FAQ
-
-// Dữ liệu tĩnh cho Structured Data (có thể lấy từ file riêng)
-import { faqItems } from "@/types/faqData"; // Giả sử em tạo file này để chứa data FAQ
+import FAQSection from "@/app/huong-dan/FAQSection";
+import { faqItems } from "@/types/faqData";
 
 // Kiểu dữ liệu cho card hiển thị
 interface GuideCard {

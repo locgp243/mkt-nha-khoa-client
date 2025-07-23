@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { PostCard } from "@/components/PostCard";
 import { PostService } from "@/lib/api/services/post.service";
 import { CustomPagination } from "@/components/CustomPagination";
-
-const POSTS_PER_PAGE = 6;
+import Breadcrumb from "@/app/blog/breadcrumb";
+const POSTS_PER_PAGE = 4;
 
 // =================================================================
 // ## ĐỊNH NGHĨA TYPE CHO PROPS CỦA TRANG (THAY CHO type Props cũ)
@@ -13,7 +13,7 @@ const POSTS_PER_PAGE = 6;
 type BlogPageProps = {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   params: {}; // Page này không có params động như /blog/[slug]
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>; // Đã thay đổi thành Promise
 };
 
 // =================================================================
@@ -23,9 +23,10 @@ type BlogPageProps = {
 export async function generateMetadata({
   searchParams,
 }: BlogPageProps): Promise<Metadata> {
-  const currentPage = Number(searchParams?.page) || 1;
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://tenmiencuaem.com";
+  // Await searchParams trước khi sử dụng
+  const resolvedSearchParams = await searchParams;
+  const currentPage = Number(resolvedSearchParams?.page) || 1;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const canonicalUrl = `${baseUrl}/blog${
     currentPage > 1 ? `?page=${currentPage}` : ""
   }`;
@@ -56,7 +57,9 @@ export async function generateMetadata({
 // =================================================================
 // Sử dụng BlogPageProps đã định nghĩa
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const currentPage = Number(searchParams?.page) || 1;
+  // Await searchParams trước khi sử dụng
+  const resolvedSearchParams = await searchParams;
+  const currentPage = Number(resolvedSearchParams?.page) || 1;
 
   try {
     const { data: posts, pagination } = await PostService.getAll({
@@ -88,15 +91,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {/* ===== CONTENT SECTION ===== */}
         <section className="w-[90%] lg:w-[80%] py-14 mx-auto">
           {/* Breadcrumbs */}
-          <div className="flex items-center breadcrumbs cursor-pointer">
-            <div className="relative bg-[#C1F1FF] h-[34px] text-gray-700 text-sm breadcrumbsList pr-6 flex items-center hover:scale-[1.1] hover:z-10">
-              <span>CRM - Phần mềm quản lý nha khoa</span>
-            </div>
-            <div className="bg-[#81d4fa] relative h-[34px] text-gray-700 text-sm pl-4 pr-6 breadcrumbsList flex items-center hover:scale-[1.1] hover:z-10">
-              <span>Blog</span>
-            </div>
-          </div>
-
+          <Breadcrumb />
           {/* ===== POSTS GRID & PAGINATION ===== */}
           <div className="mt-10">
             {posts && posts.length > 0 ? (
