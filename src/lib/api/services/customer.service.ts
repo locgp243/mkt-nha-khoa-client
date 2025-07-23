@@ -4,7 +4,7 @@ import { ENDPOINTS } from "@/lib/api/apiEndpoints"; // Điều chỉnh đường
 // Hoặc import { ENDPOINTS } from "../config/endpoints";
 
 interface RegistrationPayload {
-  clinicName: string;
+  clinic_name: string;
   address: string;
   referring_doctor_1: string;
   referring_doctor_2?: string;

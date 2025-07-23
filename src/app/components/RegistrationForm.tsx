@@ -13,7 +13,7 @@ export default function RegistrationForm({
   onRegistrationSuccess,
 }: RegistrationFormProps) {
   const [formData, setFormData] = useState({
-    clinicName: "",
+    clinic_name: "",
     address: "",
     referring_doctor_1: "",
     referring_doctor_2: "",
@@ -34,7 +34,7 @@ export default function RegistrationForm({
     setIsSubmitting(true);
 
     if (
-      !formData.clinicName ||
+      !formData.clinic_name ||
       !formData.address ||
       !formData.referring_doctor_1 ||
       !formData.email ||
@@ -47,7 +47,7 @@ export default function RegistrationForm({
 
     try {
       const payload = {
-        clinicName: formData.clinicName,
+        clinic_name: formData.clinic_name,
         address: formData.address,
         referring_doctor_1: formData.referring_doctor_1,
         referring_doctor_2: formData.referring_doctor_2,
@@ -96,8 +96,8 @@ export default function RegistrationForm({
                   </label>
                   <input
                     type="text"
-                    name="clinicName"
-                    value={formData.clinicName}
+                    name="clinic_name"
+                    value={formData.clinic_name}
                     onChange={handleChange}
                     className="w-full p-3 mt-1 border rounded-md"
                     placeholder="Tên phòng khám của bạn"
