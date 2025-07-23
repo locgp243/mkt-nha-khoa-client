@@ -57,21 +57,6 @@ export async function generateMetadata({
 }
 
 // =================================================================
-// STEP 2: GENERATE STATIC PARAMS (BUILD TRANG TĨNH - SSG)
-// =================================================================
-export async function generateStaticParams() {
-  try {
-    const response = await StaticPageService.getAll();
-    return response.data.map((page) => ({
-      slug: page.slug,
-    }));
-  } catch (error) {
-    console.error("[generateStaticParams] Lỗi khi lấy danh sách trang:", error);
-    return [];
-  }
-}
-
-// =================================================================
 // STEP 3: THE PAGE COMPONENT
 // =================================================================
 export default async function StaticPageDetail({
