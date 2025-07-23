@@ -3,23 +3,22 @@ import { PostCard } from "@/components/PostCard";
 import { PostService } from "@/lib/api/services/post.service";
 import { CustomPagination } from "@/components/CustomPagination";
 import Breadcrumb from "@/app/blog/breadcrumb";
+
 const POSTS_PER_PAGE = 4;
 
 // =================================================================
-// ## ĐỊNH NGHĨA TYPE CHO PROPS CỦA TRANG (THAY CHO type Props cũ)
+// ## ĐỊNH NGHĨA TYPE CHO PROPS CỦA TRANG (NEXT.JS 15 COMPATIBLE)
 // =================================================================
-// Định nghĩa một kiểu dữ liệu chuẩn cho props của trang này
-// để dễ quản lý và tái sử dụng cho cả generateMetadata và BlogPage.
+// Trong Next.js 15, cả params và searchParams đều là Promise
 type BlogPageProps = {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  params: {}; // Page này không có params động như /blog/[slug]
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>; // Đã thay đổi thành Promise
+  params: Promise<{}>; // Đổi thành Promise cho Next.js 15
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 // =================================================================
 // ## PHẦN METADATA (SEO)
 // =================================================================
-// Sử dụng BlogPageProps đã định nghĩa
 export async function generateMetadata({
   searchParams,
 }: BlogPageProps): Promise<Metadata> {
@@ -55,7 +54,6 @@ export async function generateMetadata({
 // =================================================================
 // ## PHẦN COMPONENT CHÍNH CỦA TRANG
 // =================================================================
-// Sử dụng BlogPageProps đã định nghĩa
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   // Await searchParams trước khi sử dụng
   const resolvedSearchParams = await searchParams;
